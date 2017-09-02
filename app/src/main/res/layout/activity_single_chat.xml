@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/single_chat.appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.ActionBar"
+        >
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/single_chat.collapsing"
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:background="@drawable/bg_pinky_sky"
+            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="64dp"
+            app:layout_scrollFlags="scroll|snap"
+            >
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/single_chat.companionImg"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="8dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@mipmap/ic_launcher"
+                app:civ_border_color="#fff"
+                app:civ_border_width="1dp"
+                app:layout_scrollFlags="scroll|enterAlways|snap"
+                android:transitionName="@string/transitions.id.userPic"
+                />
+
+            <TextSwitcher
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:id="@+id/single_chat.toolbar_text_switcher"
+                android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                android:layout_gravity="bottom|center_horizontal"
+                >
+
+            </TextSwitcher>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/single_chat.toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/ToolBarWithNavigationBack"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="44dp"
+                android:layout_marginEnd="44dp"
+                android:orientation="horizontal"
+                >
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/single_chat.toolbar.ivThing1"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_margin="8dp"
+                    android:src="@mipmap/ic_launcher"
+                    app:civ_border_color="#fff"
+                    app:civ_border_width="1dp"
+                    app:layout_scrollFlags="scroll|enterAlways|snap"
+                    android:transitionName="@string/transitions.id.thing1Img"
+                    />
+
+                <ImageView
+                    android:id="@+id/single_chat.toolbar.icExchange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_exchange_black_24dp"
+                    android:tint="#fff"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/single_chat.toolbar.ivThing2"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_margin="8dp"
+                    android:src="@mipmap/ic_launcher"
+                    app:civ_border_color="#fff"
+                    app:civ_border_width="1dp"
+                    app:layout_scrollFlags="scroll|enterAlways|snap"
+                    android:transitionName="@string/transitions.id.thing2Img"
+                    />
+            </LinearLayout>
+
+
+
+
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/single_chat.fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:layout_anchorGravity="bottom|right"
+        app:srcCompat="@drawable/ic_keyboard_black_24dp"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/single_chat.recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:background="@color/white"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/single_chat.linearLayout"
+            />
+
+        <LinearLayout
+            android:id="@+id/single_chat.linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <EditText
+                android:id="@+id/single_chat.msgEditText"
+                android:layout_width="0dp"
+                android:layout_margin="4dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/single_chat.fab_sendButton"
+                android:layout_margin="16dp"
+                app:srcCompat="@drawable/ic_send_black_24dp"
+                />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+    <ProgressBar
+        android:id="@+id/single_chat.progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
+
+</android.support.design.widget.CoordinatorLayout>

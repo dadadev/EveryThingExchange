@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerInParent="true"
+    android:layout_gravity="center_horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
+    card_view:cardCornerRadius="2dp"
+    card_view:cardElevation="8dp"
+    card_view:cardMaxElevation="8dp"
+    android:orientation="horizontal"
+    android:layout_marginTop="20dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    android:animateLayoutChanges="true"
+    android:clickable="true"
+    android:id="@+id/card_myThing_description">
+
+    <LinearLayout
+        android:id="@+id/card_myThing_description.layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible"
+        >
+
+        <TextView
+            android:id="@+id/card_myThing_description.tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category of Thing"
+            android:layout_margin="8dp"
+            />
+
+        <TextView
+            android:id="@+id/card_myThing_description.tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-24dp"
+            android:text="22/03/2017"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_gravity="right"
+            />
+
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey2"
+            android:layout_margin="8dp"/>
+
+        <TextView
+            android:id="@+id/card_myThing_description.tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/lorem"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/card_myThing_description.hashTagRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/view_hashtag"
+            />
+
+        <Button
+            android:id="@+id/card_myThing_description.btnChange"
+            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:text="Change"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/card_myThing_description.btnDelete"
+            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="-48dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="Delete"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

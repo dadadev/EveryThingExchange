@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="2dp"
+    card_view:cardElevation="8dp"
+    card_view:cardMaxElevation="6dp"
+    android:orientation="horizontal"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="8dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:longClickable="true"
+    android:id="@+id/card_thing"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/card_thing.imageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:transitionName="@string/transitions.id.thingImg"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp" />
+
+        <TextView
+            android:id="@+id/card_thing.tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/card_thing.imageView"
+            android:layout_marginTop="8dp"
+            android:layout_toEndOf="@+id/card_thing.imageView"
+            android:layout_toRightOf="@+id/card_thing.imageView"
+            android:maxLines="1"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+            />
+
+        <TextView
+            android:id="@+id/card_thing.tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxLines="1"
+            android:layout_marginBottom="8dp"
+            android:layout_below="@+id/card_thing.tvName"
+            android:layout_toEndOf="@+id/card_thing.imageView"
+            android:layout_toRightOf="@+id/card_thing.imageView"
+            android:textAlignment="center"
+            />
+
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

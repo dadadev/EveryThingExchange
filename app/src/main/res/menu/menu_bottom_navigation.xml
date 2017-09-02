@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bottomMenu_categories"
+        android:title="Categories"
+        android:icon="@drawable/ic_categories_black_24dp" />
+    <item
+        android:id="@+id/bottomMenu_addNewThing"
+        android:title="Add Thing"
+        android:icon="@drawable/ic_add_circle_outline_black_48dp" />
+    <item
+        android:id="@+id/bottomMenu_myThings"
+        android:title="My Things"
+        android:icon="@drawable/ic_home_black_48dp" />
+</menu>

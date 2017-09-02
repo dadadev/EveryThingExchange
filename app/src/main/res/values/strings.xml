@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">EveryThing Exchange</string>
+    <string name="toolBarTitle_location">Current Location: </string>
+
+    <string name="apiResultType">administrative_area_level_1</string>
+    <string name="progressDialog_uploading">Uploading</string>
+
+    <string-array name="categories">
+        <item>Sport</item>
+        <item>Appliances and Devices</item>
+        <item>Books</item>
+        <item>Games and Toys</item>
+        <item>Home Stuff</item>
+        <item>Clothes and Accessories</item>
+        <item>Pets</item>
+        <item>Collections</item>
+        <item>Art</item>
+        <item>Kids</item>
+        <item>Trinkets</item>
+        <item>Outdoor</item>
+    </string-array>
+
+    <integer-array name="img_categories">
+        <item>@drawable/ic_sport</item>
+        <item>@drawable/ic_devices</item>
+        <item>@drawable/ic_books</item>
+        <item>@drawable/ic_games</item>
+        <item>@drawable/ic_home_stuff</item>
+        <item>@drawable/ic_clothes</item>
+        <item>@drawable/ic_pats</item>
+        <item>@drawable/ic_collections</item>
+        <item>@drawable/ic_art</item>
+        <item>@drawable/ic_kids</item>
+        <item>@drawable/ic_trinkets</item>
+        <item>@drawable/ic_outdoor</item>
+    </integer-array>
+
+    <integer-array name="img_backgrounds">
+        <item>@drawable/bg_river_pink</item>
+        <item>@drawable/bg_west</item>
+        <item>@drawable/bg_sun</item>
+        <item>@drawable/bg_pinky_sky</item>
+        <item>@drawable/bg_pinky_sky</item>
+        <item>@drawable/bg_sun</item>
+    </integer-array>
+
+    <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultricies urna non nulla maximus, non hendrerit augue dapibus. Vestibulum sed ultrices mauris, at dictum lacus. Maecenas sed risus fermentum, semper purus eget, dictum erat. Quisque fringilla diam ac dolor suscipit, quis commodo nisl laoreet. Pellentesque et sapien molestie, consequat mauris at, facilisis ante. Sed tristique et augue nec viverra. </string>
+    <string name="menu_chats.change_date">Change date</string>
+    <string name="menu_chats.cancel_exchange">Cancel exchange</string>
+    <string name="menu_chats.end_exchange">End exchange</string>
+    <string name="chats_dialog_message_cancel">Do you really want to cancel this exchange? \n(this action cannot be undone)</string>
+    <string name="chats_dialog_message_end">Do you really want to end this exchange? \n\n(this action will delete all data about exchange and cannot be undone)</string>
+    <string name="chats_dialog_message_complete">Exchange date is over.  \nDelete all data about it?  \n\n(this action cannot be undone)</string>
+    <string name="transitions.id.userPic">transitionUserPic</string>
+    <string name="transitions.id.thing1Img">transitionThing1Img</string>
+    <string name="transitions.id.thing2Img">transitionThing2Img</string>
+    <string name="transitions.id.personName">transitionPersonName</string>
+    <string name="transitions.id.thingImg">transitionThingImg</string>
+
+    <string name="not_enough_locations_message">Sorry, in your country only %1$d locations with things</string>
+    <string name="tell_to_your_friends_message">If you want to help our project, please tell to your friends about us.</string>
+    <string name="snackbar_undo">UNDO</string>
+    <string name="location_home_changed_snackbar">Home location: %1$s</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
+
+
+    <string name="menu_vector_path" translatable="false">M20 30,L80 30,M20 50,L80 50,M20 70,L80 70</string>
+    <string name="back_vector_path" translatable="false">M50 25,L80 50,M20 50,L80 50,M50 75,L80 50</string>
+    <string name="exchange_vector_path" translatable="false">M9.01,14L2,14v2h7.01v3L13,15l-3.99,-4v3zM14.99,13v-3L22,10L22,8h-7.01L14.99,5L11,9l3.99,4z</string>
+    <string name="remove_vector_path" translatable="false">M60 25,L75 45,M25 75,L60 25</string>
+
+    <string name="notification_offer_msg">New offer for %1$s</string>
+    <string name="first_message">I`m ready to exchange with you at %1$s</string>
+    <string name="name">Name</string>
+    <string name="choose_category">Choose Category</string>
+    <string name="description">Description</string>
+
+    <string name="title_addNewThing">Add New Thing</string>
+    <string name="title_my_things">My Things</string>
+    <string name="title_chats">Chats</string>
+    <string name="title_locations">Locations</string>
+    <string name="title_change_thing">Change thing</string>
+
+    <string name="toast_close_app">Press Back again to Exit</string>
+    <string name="toast_auth_fail">Authentication failed.</string>
+    <string name="toast_play_service_error">Google Play Services error.</string>
+    <string name="spam_report">Spam report</string>
+
+</resources>

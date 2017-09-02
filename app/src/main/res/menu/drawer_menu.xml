@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/side_bar_name"
+            android:icon="@drawable/ic_person_pin_black_24dp"
+            android:title="Person Name" />
+
+        <item
+            android:id="@+id/side_bar_location"
+            android:icon="@drawable/ic_location_pin_black_24dp"
+            android:title="Person Location" />
+
+
+
+
+
+    </group>
+
+    <item android:title="Google Account">
+
+        <menu>
+
+            <item
+                android:id="@+id/side_bar_sign_out"
+                android:icon="@drawable/ic_cloud_off_black_24dp"
+                android:title="Sign out" />
+
+        </menu>
+
+
+    </item>
+
+
+</menu>

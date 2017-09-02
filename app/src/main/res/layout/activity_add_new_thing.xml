@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:animateLayoutChanges="true"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/addNew.appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        >
+
+
+        <android.support.v7.widget.Toolbar
+            android:background="@color/colorPrimary"
+            android:id="@+id/addNew.toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:layout_scrollFlags="scroll|snap"
+            />
+
+
+
+    </android.support.design.widget.AppBarLayout>
+
+    <ProgressBar
+        android:id="@+id/addNew.progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/addNew.separator2"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addNew_btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_done_black_24dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+
+
+
+    <android.support.v7.widget.CardView
+
+        android:id="@+id/addNew.card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:clickable="false"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardUseCompatPadding="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        card_view:cardCornerRadius="5dp"
+        card_view:cardElevation="4dp"
+        card_view:cardMaxElevation="6dp">
+
+        <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/addNew.hashtagRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="8dp"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                tools:listitem="@layout/view_hashtag" />
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/addNew.imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_below="@+id/addNew.hashtagRecyclerView"
+                android:layout_gravity="center"
+                android:src="@drawable/bg_pinky_sky"
+                android:transitionName="@string/transitions.id.thing1Img"
+                android:layout_margin="16dp"
+                app:civ_border_color="#FF000000"
+                app:civ_border_width="1dp" />
+
+            <EditText
+                android:id="@+id/addNew.etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/name"
+                android:inputType="textPersonName"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:layout_below="@+id/addNew.hashtagRecyclerView"
+                android:layout_alignRight="@+id/addNew.etDescription"
+                android:layout_alignEnd="@+id/addNew.etDescription"
+                android:layout_toRightOf="@+id/addNew.imageView"
+                android:layout_toEndOf="@+id/addNew.imageView"
+                android:nextFocusForward="@+id/addNew.etDescription"
+                android:nextFocusDown="@+id/addNew.etDescription"
+                />
+
+
+            <Button
+                android:id="@+id/addNew.btnCategory"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/addNew.etName"
+                android:layout_alignStart="@+id/addNew.etName"
+                android:layout_below="@+id/addNew.etName"
+                android:layout_margin="8dp"
+                android:text="@string/choose_category" />
+
+            <View
+                android:id="@+id/addNew.separator"
+                android:layout_width="fill_parent"
+                android:layout_height="0.5dp"
+                android:layout_below="@+id/addNew.imageView"
+                android:background="@color/grey" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/addNew.recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/addNew.separator"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                tools:listitem="@layout/view_card_single_icon" />
+
+            <View
+                android:id="@+id/addNew.separator2"
+                android:layout_width="fill_parent"
+                android:layout_height="0.5dp"
+                android:layout_below="@+id/addNew.recyclerView"
+                android:background="@color/grey" />
+
+            <EditText
+                android:id="@+id/addNew.etDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/addNew.separator2"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:hint="@string/description"
+                android:inputType="textMultiLine"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:scrollbars="vertical" />
+
+            <Button
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:id="@+id/addNew.btnHashtag"
+                android:layout_margin="4dp"
+                android:text="#HashTag"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_below="@+id/addNew.etDescription"
+                />
+
+            <EditText
+                android:id="@+id/addNew.etHashTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="4dp"
+                android:layout_below="@+id/addNew.etDescription"
+                android:text="#"
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                android:layout_toRightOf="@+id/addNew.btnHashtag"
+                android:layout_toEndOf="@+id/addNew.btnHashtag" />
+
+
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+
+</android.support.design.widget.CoordinatorLayout>

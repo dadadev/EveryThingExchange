@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/single_thing.layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activity.SingleThingActivity"
+    >
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/single_thing.appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.ActionBar"
+        >
+
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/single_thing.toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/ToolBarWithNavigationBack"
+            >
+
+            <LinearLayout
+                android:id="@+id/single_thing.toolbar.title_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="@dimen/spacing_normal"
+                android:gravity="start"
+                >
+
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/single_thing.userPic"
+                    android:layout_width="@dimen/toolbar_image_size"
+                    android:layout_height="@dimen/toolbar_image_size"
+                    style="@style/ToolBarImage" />
+
+                ​<TextView
+                    android:id="@+id/single_thing.tvPersonName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/ToolBarTitle" />
+                ​
+                ​
+            </LinearLayout>
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+        <android.support.v7.widget.CardView
+
+            android:id="@+id/single_thing.card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CardView.BehindToolBar"
+            >
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:id="@+id/single_thing.tv_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_normal"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    />
+
+                <TextView
+                    android:id="@+id/single_thing.tv_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="@dimen/spacing_normal"
+                    />
+
+
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/single_thing.imageView"
+                    android:layout_width="@dimen/iv_singleThing_large"
+                    android:layout_height="@dimen/iv_singleThing_large"
+                    android:layout_marginBottom="@dimen/spacing_normal"
+                    android:layout_marginStart="@dimen/spacing_normal"
+                    android:layout_marginEnd="@dimen/spacing_normal"
+                    android:layout_gravity="center"
+                    app:civ_border_color="@color/black"
+                    app:civ_border_width="@dimen/civ_border_width"
+                    android:layout_below="@+id/single_thing.tv_date"
+                    android:layout_centerHorizontal="true"
+                    android:transitionName="transitionThingImg"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/single_thing.thing2_imageView"
+                    android:layout_width="@dimen/iv_singleThing_medium"
+                    android:layout_height="@dimen/iv_singleThing_medium"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/spacing_normal"
+                    app:civ_border_color="@color/black"
+                    app:civ_border_width="@dimen/civ_border_width"
+                    android:visibility="gone"
+                    android:layout_below="@+id/single_thing.tv_date"
+                    android:layout_toRightOf="@+id/single_thing.icon_exchange"
+                    android:layout_toEndOf="@+id/single_thing.icon_exchange" />
+
+                <TextView
+                    android:id="@+id/single_thing.tv_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:layout_marginTop="@dimen/spacing_normal"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:layout_below="@+id/single_thing.imageView"
+                    />
+
+
+                <TextView
+                    android:id="@+id/single_thing.tv_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_normal"
+                    android:layout_marginBottom="@dimen/spacing_normal"
+                    android:padding="@dimen/spacing_normal"
+                    android:layout_below="@+id/single_thing.tv_name"
+                    />
+
+                <ImageView
+                    android:id="@+id/single_thing.icon_exchange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_exchange_black_24dp"
+                    android:visibility="gone"
+                    android:layout_marginTop="36dp"
+                    android:layout_below="@+id/single_thing.tv_date"
+                    android:layout_centerHorizontal="true"
+                    />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/single_thing.hashTagRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:layout_marginTop="@dimen/spacing_normal"
+                    android:layout_marginBottom="@dimen/padding_normal"
+                    android:layout_below="@+id/single_thing.tv_description"
+                    android:visibility="gone"
+                    />
+
+            </RelativeLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/single_thing.myThingsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:layout_marginTop="@dimen/spacing_normal"
+        android:layout_marginBottom="@dimen/padding_normal"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layout_gravity="bottom"
+        />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/single_thing.fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Design.FloatingActionButton.Base"
+        app:srcCompat="@drawable/ic_exchange_white_24dp"
+        />
+
+</android.support.design.widget.CoordinatorLayout>

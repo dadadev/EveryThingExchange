@@ -1,0 +1,102 @@
+<resources>
+
+
+    <!--ROOT THEME-->
+    <style name="Root.Theme" parent="Theme.AppCompat.Light.NoActionBar"/>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme.Base" parent="Root.Theme">
+        <!-- Customize your theme here. -->
+
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
+    </style>
+
+    <!--ActionBar-->
+    <style name="AppTheme.ActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="android:theme">@style/Theme.AppCompat.NoActionBar</item>
+    </style>
+
+    <style name="ToolBarWithNavigationBack">
+        <item name="navigationIcon">@drawable/ic_arrow_back_white_24dp</item>
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="ToolBarCollapsingImage">
+        <item name="civ_border_color">@color/white</item>
+        <item name="civ_border_width">@dimen/toolbar_image_border_size</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+
+    </style>
+
+    <style name="ToolBarImage">
+        <item name="civ_border_color">@color/white</item>
+        <item name="civ_border_width">@dimen/toolbar_image_border_size</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
+    <style name="ToolBarTitle">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">@dimen/spacing_normal</item>
+        <item name="android:layout_marginRight">@dimen/spacing_normal</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+
+    <style name="CardView.BehindToolBar">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="android:clickable">false</item>
+        <item name="android:layout_marginTop">@dimen/hide_behind_toolbar</item>
+        <item name="android:layout_marginLeft">@dimen/spacing_normal</item>
+        <item name="android:layout_marginRight">@dimen/spacing_normal</item>
+        <item name="android:layout_marginBottom">@dimen/spacing_normal</item>
+    </style>
+
+
+    <!--Fullscreen dialog-->
+    <style name="Dialog.Fullscreen" parent="android:style/Theme.Holo.Dialog">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Widget.Design.FloatingActionButton.Base">
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="fabSize">normal</item>
+        <item name="android:layout_margin">24dp</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <!--User Info Dialog-->
+    <style name="DialogUserInfo">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name = "android:windowContentOverlay" >@null</item >
+        <item name = "android:colorBackgroundCacheHint" >@null</item >
+        <item name = "android:backgroundDimEnabled">true</item>
+        <item name="android:windowEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_right</item>
+    </style>
+
+
+
+    <!--Animations-->
+    <style name="Slide_inOut_animation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_top</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_top</item>
+    </style>
+
+
+
+</resources>

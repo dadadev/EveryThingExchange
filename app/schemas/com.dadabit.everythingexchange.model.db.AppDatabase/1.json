@@ -1,0 +1,220 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "19861a1c8ea8b9ba7e9cd51969a3cc81",
+    "entities": [
+      {
+        "tableName": "things",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `description` TEXT, `category` INTEGER, `imgBitmap` BLOB, `date` INTEGER, `fireBasePath` TEXT, `imgLink` TEXT, `hashTags` TEXT, `pointerPath` TEXT, `status` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "imgBitmap",
+            "columnName": "imgBitmap",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fireBasePath",
+            "columnName": "fireBasePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imgLink",
+            "columnName": "imgLink",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hashTags",
+            "columnName": "hashTags",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pointerPath",
+            "columnName": "pointerPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "exchanges",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fireBaseId` TEXT, `chatPath` TEXT, `thing1_path` TEXT, `thing1_name` TEXT, `thing1_img` TEXT, `thing1_ownerId` TEXT, `thing1_ownerName` TEXT, `thing1_ownerImg` TEXT, `thing2_path` TEXT, `thing2_name` TEXT, `thing2_img` TEXT, `thing2_ownerId` TEXT, `thing2_ownerName` TEXT, `thing2_ownerImg` TEXT, `location` TEXT, `startDate` INTEGER, `endDate` INTEGER, `status` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fireBaseId",
+            "columnName": "fireBaseId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "chatPath",
+            "columnName": "chatPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_path",
+            "columnName": "thing1_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_name",
+            "columnName": "thing1_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_img",
+            "columnName": "thing1_img",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_ownerId",
+            "columnName": "thing1_ownerId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_ownerName",
+            "columnName": "thing1_ownerName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing1_ownerImg",
+            "columnName": "thing1_ownerImg",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_path",
+            "columnName": "thing2_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_name",
+            "columnName": "thing2_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_img",
+            "columnName": "thing2_img",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_ownerId",
+            "columnName": "thing2_ownerId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_ownerName",
+            "columnName": "thing2_ownerName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thing2_ownerImg",
+            "columnName": "thing2_ownerImg",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "startDate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "endDate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "exchange_path",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `exchangeId` INTEGER, `exchangePath` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "exchangeId",
+            "columnName": "exchangeId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "exchangePath",
+            "columnName": "exchangePath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"19861a1c8ea8b9ba7e9cd51969a3cc81\")"
+    ]
+  }
+}
