@@ -1,6 +1,7 @@
 package com.dadabit.everythingexchange.model.firebase;
 
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.dadabit.everythingexchange.model.db.entity.ExchangeEntity;
@@ -15,12 +16,16 @@ import com.dadabit.everythingexchange.model.vo.User;
 import com.dadabit.everythingexchange.ui.presenter.personInfo.PersonThingsObserver;
 import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.Utils;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -570,6 +575,33 @@ public class FireBaseManager {
         mDatabaseReference.child(path).removeValue();
     }
 
+    public void removeFromStorage(String imgLink) {
+
+        FirebaseStorage.getInstance()
+                .getReferenceFromUrl("gs://everythingexchange-29da5.appspot.com/")
+                .getStorage()
+                .getReferenceFromUrl(imgLink)
+                .delete()
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                Log.d("@@@", "FireBaseManager.removeFromStorage.onSuccess");
+
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("@@@", "FireBaseManager.removeFromStorage.onFailure (!!!) ");
+
+                            }
+                        }
+                );
+
+    }
     public void removeListeners() {
         Log.d("@@@", "FireBaseManager.removeListeners");
 
@@ -598,7 +630,6 @@ public class FireBaseManager {
             chatsListeners.remove(i);
         }
     }
-
 
 
 

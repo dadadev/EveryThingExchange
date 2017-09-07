@@ -653,6 +653,7 @@ public class Repository {
 
                 mFireBaseManager.removeFromFireBase(thingToRemove.getFireBasePath());
                 mFireBaseManager.removeFromFireBase(thingToRemove.getPointerPath());
+                mFireBaseManager.removeFromStorage(thingToRemove.getImgLink());
 
                 db.myThingDao().delete(thingToRemove);
 
