@@ -15,6 +15,7 @@ import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.model.Repository;
 import com.dadabit.everythingexchange.model.vo.User;
+import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.geocode.GeocodeManager;
 import com.dadabit.everythingexchange.utils.geocode.LocationResponseCallback;
 import com.google.android.gms.auth.api.Auth;
@@ -41,8 +42,12 @@ import butterknife.ButterKnife;
 public class AuthActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
 
     private static final int RC_SIGN_IN = 9001;
+
+    public static final String AUTH_ARGUMENT = "auth_arg";
+
     private FirebaseAuth mFireBaseAuth;
     private GoogleApiClient mGoogleApiClient;
+
 
     @BindView(R.id.auth_button) SignInButton mAuthButton;
     @BindView(R.id.auth_progressBar) ProgressBar mProgressBar;
@@ -60,25 +65,56 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
 
         App.getComponent().inject(this);
 
-        mAuthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Authorize();
-            }
-        });
-
         mFireBaseAuth = FirebaseAuth.getInstance();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+
+        if (getIntent().hasExtra(AUTH_ARGUMENT)
+                && getIntent().getIntExtra(AUTH_ARGUMENT, 0) == Constants.AUTH_LOG_OUT){
+
+            mGoogleApiClient.registerConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                @Override
+                public void onConnected(@Nullable Bundle bundle) {
+                    Log.d("@@@", "AuthActivity.registerConnectionCallbacks.onConnected");
+
+                    logOut();
+                }
+
+                @Override
+                public void onConnectionSuspended(int i) {
+                    Log.d("@@@", "AuthActivity.registerConnectionCallbacks.onConnectionSuspended");
+
+                }
+            });
+
+
+        }
+
+        mAuthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Authorize();
+            }
+        });
     }
 
+    private void logOut() {
+
+        mFireBaseAuth.signOut();
+
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+
+        mRepository.removeUser();
+
+    }
 
 
     private void Authorize() {
@@ -96,9 +132,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
 
                 mProgressBar.setVisibility(View.VISIBLE);
 
-                GoogleSignInAccount account = result.getSignInAccount();
-
-                fireBaseAuthWithGoogle(account);
+                fireBaseAuthWithGoogle(result.getSignInAccount());
 
 
             } else {
@@ -108,51 +142,59 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
-    private void fireBaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mFireBaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(AuthActivity.this, R.string.toast_auth_fail,
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
+    private void fireBaseAuthWithGoogle(GoogleSignInAccount signInAccount) {
 
-                            Log.d("@@@", "AuthActivity.fireBaseAuthWithGoogle.onComplete");
+        mFireBaseAuth
+                .signInWithCredential(
+                        GoogleAuthProvider
+                                .getCredential(
+                                        signInAccount.getIdToken(),
+                                        null))
+                .addOnCompleteListener(
+                        this,
+                        new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (!task.isSuccessful()) {
+                                    Toast.makeText(AuthActivity.this, R.string.toast_auth_fail,
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
 
-                            final FirebaseUser mFireBaseUser= mFireBaseAuth.getCurrentUser();
-                            final String token = FirebaseInstanceId.getInstance().getToken();
+                                    Log.d("@@@", "AuthActivity.fireBaseAuthWithGoogle.onComplete");
 
-                            if (mFireBaseUser != null && mFireBaseUser.getPhotoUrl() != null){
+                                    final FirebaseUser mFireBaseUser= mFireBaseAuth.getCurrentUser();
+                                    final String token = FirebaseInstanceId.getInstance().getToken();
 
-                                new GeocodeManager(getApplicationContext(), new LocationResponseCallback() {
-                                    @Override
-                                    public void onResponse(String[] location) {
+                                    if (mFireBaseUser != null
+                                            && mFireBaseUser.getPhotoUrl() != null){
 
-                                        Log.d("@@@", "AuthActivity.GeocodeManager.onResponse ");
+                                        new GeocodeManager(getApplicationContext(), new LocationResponseCallback() {
+                                            @Override
+                                            public void onResponse(String[] location) {
+
+                                                Log.d("@@@", "AuthActivity.GeocodeManager.onResponse");
 
 
-                                        if (mRepository.getSharedPreferences().saveUser(
-                                                new User(
-                                                        mFireBaseUser.getUid(),
-                                                        token,
-                                                        mFireBaseUser.getDisplayName(),
-                                                        mFireBaseUser.getPhotoUrl().toString(),
-                                                        location[0],
-                                                        location[1]))){
+                                                if (mRepository.getSharedPreferences().saveUser(
+                                                        new User(
+                                                                mFireBaseUser.getUid(),
+                                                                token,
+                                                                mFireBaseUser.getDisplayName(),
+                                                                mFireBaseUser.getPhotoUrl().toString(),
+                                                                location[0],
+                                                                location[1]))){
 
-                                            mRepository.init();
+                                                    mRepository.init();
 
-                                            startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                                            finish();
-                                        }
+                                                    startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                                                    finish();
+                                                }
+                                            }
+                                        });
                                     }
-                                });
+                                }
                             }
-                        }
-                    }
-                });
+                        });
     }
 
 

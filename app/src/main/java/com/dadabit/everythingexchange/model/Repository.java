@@ -742,6 +742,14 @@ public class Repository {
         return mHandler;
     }
 
+    public void removeUser() {
+
+        user = null;
+
+        sharedPrefs.removeUser();
+
+    }
+
 
     public interface LocationsLoaderCallback {
         void onLocationsLoad(List<String> locations, int homePosition);

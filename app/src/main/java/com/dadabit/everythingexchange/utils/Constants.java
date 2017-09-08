@@ -3,6 +3,10 @@ package com.dadabit.everythingexchange.utils;
 
 public class Constants {
 
+
+    public static final int AUTH_LOG_IN = 1;
+    public static final int AUTH_LOG_OUT = 2;
+
     public static final int EXCHANGE_STATUS_CREATED = 1;
     public static final int EXCHANGE_STATUS_SAVED = 2;
     public static final int EXCHANGE_STATUS_CANCELED = 3;

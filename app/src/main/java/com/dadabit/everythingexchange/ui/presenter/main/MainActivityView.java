@@ -45,7 +45,7 @@ public interface MainActivityView extends MvpView {
 
     ProgressBar getProgressBar();
 
-    void startAuthActivity();
+    void startAuthActivity(int arg);
 
     void startSingleThingActivity(int position);
 

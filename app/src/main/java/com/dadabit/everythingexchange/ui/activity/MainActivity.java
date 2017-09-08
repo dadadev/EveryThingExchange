@@ -256,8 +256,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void startAuthActivity() {
-        startActivity(new Intent(this, AuthActivity.class));
+    public void startAuthActivity(int arg) {
+        startActivity(
+                new Intent(this, AuthActivity.class)
+                        .putExtra(AuthActivity.AUTH_ARGUMENT, arg));
         finish();
     }
 

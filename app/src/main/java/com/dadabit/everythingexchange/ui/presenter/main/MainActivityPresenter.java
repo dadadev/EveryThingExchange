@@ -60,6 +60,31 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         App.getComponent().inject(this);
     }
 
+
+
+    @Override
+    public void attachView(MainActivityView mainActivityView) {
+        super.attachView(mainActivityView);
+        Log.d("@@@", "MainActivityPresenter.attachView");
+
+        if ( mRepository.getUser() == null ) {
+
+            getView().startAuthActivity(Constants.AUTH_LOG_IN);
+
+        } else {
+
+            initToolbar();
+
+            initSideBar();
+
+            initNavigationView();
+
+            setRecyclerAdapter(mRepository.getState().getAdapterType());
+
+        }
+    }
+
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -118,7 +143,11 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 break;
             case R.id.side_bar_sign_out:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: side_bar_sign_out");
+
                 getView().getDrawerLayout().closeDrawer(GravityCompat.START);
+
+                getView().startAuthActivity(Constants.AUTH_LOG_OUT);
+
                 break;
         }
         return true;
@@ -274,29 +303,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     }
                 }
             };
-
-
-    @Override
-    public void attachView(MainActivityView mainActivityView) {
-        super.attachView(mainActivityView);
-        Log.d("@@@", "MainActivityPresenter.attachView");
-
-        if ( mRepository.getUser() == null ) {
-
-            getView().startAuthActivity();
-
-        } else {
-
-            initToolbar();
-
-            initSideBar();
-
-            initNavigationView();
-
-            setRecyclerAdapter(mRepository.getState().getAdapterType());
-
-        }
-    }
 
 
 

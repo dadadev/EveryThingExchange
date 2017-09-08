@@ -27,14 +27,10 @@ public class SharedPreferencesManager {
     public static final String APP_PREFERENCES_USER_IMG = "shared_preferences_user_image";
 
     private SharedPreferences sharedPrefs;
-//    private static SharedPreferencesManager instance;
-//    private User user;
 
     public SharedPreferencesManager(Context context) {
         Log.d("@@@", "SharedPreferencesManager.create");
         sharedPrefs = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-//        isTokenChanged();
-//        checkLocation(context);
     }
 
 //    private void checkLocation(Context context) {
@@ -151,6 +147,7 @@ public class SharedPreferencesManager {
 
     public boolean saveUser(User user){
 
+
         if (user.getUid().length() == 0
                 || user.getName().length() == 0
                 || user.getImgUrl().length() == 0
@@ -171,16 +168,20 @@ public class SharedPreferencesManager {
             editor.apply();
 
             return true;
-//            Log.d("@@@", "SharedPreferencesManager.saveUser");
-//
-//            user = new User(sharedPrefs.getString(APP_PREFERENCES_UID, ""),
-//                    sharedPrefs.getString(APP_PREFERENCES_USER_NAME, ""),
-//                    sharedPrefs.getString(APP_PREFERENCES_USER_IMG,""),
-//                    sharedPrefs.getString(APP_PREFERENCES_COUNTRY,""),
-//                    sharedPrefs.getString(APP_PREFERENCES_HOME_LOCATION,""),
-//                    sharedPrefs.getString(APP_PREFERENCES_LOCATION,""),
-//                    sharedPrefs.getString(APP_PREFERENCES_TOKEN,""));
         }
+
+    }
+
+    public void removeUser(){
+        Log.d("@@@", "SharedPreferencesManager.removeUser");
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.remove(APP_PREFERENCES_UID);
+        editor.remove(APP_PREFERENCES_USER_IMG);
+        editor.remove(APP_PREFERENCES_USER_NAME);
+        editor.remove(APP_PREFERENCES_HOME_LOCATION);
+        editor.remove(APP_PREFERENCES_COUNTRY);
+        editor.remove(APP_PREFERENCES_TOKEN);
+        editor.apply();
 
     }
 
