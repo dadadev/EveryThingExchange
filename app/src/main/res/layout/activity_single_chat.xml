@@ -16,7 +16,7 @@
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/single_chat.collapsing"
             android:layout_width="match_parent"
-            android:layout_height="112dp"
+            android:layout_height="104dp"
             android:background="@drawable/bg_pinky_sky"
             app:expandedTitleMarginStart="48dp"
             app:expandedTitleMarginEnd="64dp"
@@ -138,6 +138,7 @@
             android:layout_above="@+id/single_chat.linearLayout"
             />
 
+
         <LinearLayout
             android:id="@+id/single_chat.linearLayout"
             android:layout_width="match_parent"
@@ -150,17 +151,24 @@
 
             <EditText
                 android:id="@+id/single_chat.msgEditText"
-                android:layout_width="0dp"
-                android:layout_margin="4dp"
+                android:background="@drawable/chip_chat"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="4dp"
+                android:padding="12dp"
+                android:textSize="14sp"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:inputType="textCapSentences|textAutoComplete|textAutoCorrect"
+
+                />
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:id="@+id/single_chat.fab_sendButton"
-                android:layout_margin="16dp"
+                android:layout_margin="8dp"
                 app:srcCompat="@drawable/ic_send_black_24dp"
                 />
 

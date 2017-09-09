@@ -3,6 +3,7 @@ package com.dadabit.everythingexchange.ui.presenter.chat;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
@@ -56,8 +57,6 @@ public class SingleChatActivityPresenter extends BasePresenter<SingleChatActivit
         setHandler(new Handler(getLooper()));
 
         if (mRepository.getExchange() != null){
-
-
 
             setContent();
 
@@ -279,6 +278,7 @@ public class SingleChatActivityPresenter extends BasePresenter<SingleChatActivit
         getView().getButton().setOnClickListener(this);
         getView().getButton().setEnabled(false);
         getView().getButton().setClickable(false);
+        getView().getButton().setColorFilter(Color.argb(255, 224, 224, 224));
 
 
         getView().getEditText().addTextChangedListener(new TextWatcher() {
@@ -294,12 +294,14 @@ public class SingleChatActivityPresenter extends BasePresenter<SingleChatActivit
 
                     getView().getButton().setEnabled(true);
                     getView().getButton().setClickable(true);
+                    getView().getButton().clearColorFilter();
 
 
                 } else {
 
                     getView().getButton().setEnabled(false);
                     getView().getButton().setClickable(false);
+                    getView().getButton().setColorFilter(Color.argb(255, 224, 224, 224));
                 }
             }
 
