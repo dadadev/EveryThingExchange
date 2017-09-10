@@ -7,6 +7,7 @@ import com.dadabit.everythingexchange.model.PersonInfoActivityRepo;
 import com.dadabit.everythingexchange.model.SingleChatActivityRepo;
 import com.dadabit.everythingexchange.model.SingleThingActivityRepo;
 import com.dadabit.everythingexchange.ui.activity.AuthActivity;
+import com.dadabit.everythingexchange.ui.presenter.auth.AuthActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityPresenter;
 
 import javax.inject.Singleton;
@@ -17,7 +18,7 @@ import dagger.Component;
 @Component(modules = {AppModule.class})
 public interface AppComponent {
 
-    void inject(AuthActivity authActivity);
+    void inject(AuthActivityPresenter authActivityPresenter);
 
     void inject(MainActivityPresenter mainActivityPresenter);
 
