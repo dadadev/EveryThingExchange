@@ -89,5 +89,8 @@
     <string name="toast_auth_fail">Authentication failed.</string>
     <string name="toast_play_service_error">Google Play Services error.</string>
     <string name="spam_report">Spam report</string>
+    <string name="bottom_sh_no_userpick_question">Do you want change default user picture?</string>
+    <string name="bottom_sh_no_userpick_btn_cancel">Use default</string>
+    <string name="bottom_sh_no_userpick_btn_ok">Change</string>
 
 </resources>

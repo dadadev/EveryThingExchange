@@ -83,7 +83,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
 
     public void signInGoogleAccount(GoogleSignInAccount signInAccount) {
 
-        getView().getProgressBar().setVisibility(View.VISIBLE);
+        getView().animateUserInfoCardIn();
 
         mFireBaseAuth
                 .signInWithCredential(
@@ -134,6 +134,8 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             Log.d("@@@", "AuthActivity.mFireBaseUser.getPhotoUrl().onException");
 
+
+                            getView().showBottomSheet();
 
                             // TODO: 10/09/2017  Handle no UserPick !!!
 

@@ -32,4 +32,8 @@ public interface AuthActivityView extends MvpView {
     void startMainActivity();
 
     void showAuthFailToast();
+
+    void animateUserInfoCardIn();
+
+    void showBottomSheet();
 }

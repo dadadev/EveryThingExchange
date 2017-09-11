@@ -1,0 +1,49 @@
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/bottom_sh_no_userpick"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+    android:background="@color/white"
+    android:paddingBottom="@dimen/spacing_middle"
+    >
+
+
+    <TextView
+        android:id="@+id/bottom_sh_no_userpick.tv_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/bottom_sh_no_userpick_question"
+        android:textAppearance="@style/TextAppearance.AppCompat.Notification.Title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/bottom_sh_no_userpick.btn_cancel"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="72dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/bottom_sh_no_userpick_btn_cancel"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_sh_no_userpick.tv_message" />
+
+    <Button
+        android:id="@+id/bottom_sh_no_userpick.btn_ok"
+        style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="72dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/bottom_sh_no_userpick_btn_ok"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_sh_no_userpick.tv_message" />
+</android.support.constraint.ConstraintLayout>
