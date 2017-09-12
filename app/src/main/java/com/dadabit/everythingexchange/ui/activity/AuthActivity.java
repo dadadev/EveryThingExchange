@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -46,6 +45,7 @@ public class AuthActivity extends AppCompatActivity implements
     @BindView(R.id.auth_card) CardView userInfoCard;
     @BindView(R.id.auth_card_editText) EditText etName;
     @BindView(R.id.auth_card_imageView) ImageView ivUserPic;
+    @BindView(R.id.bottom_sh_no_userpick) ConstraintLayout mBottomSheet;
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -72,11 +72,14 @@ public class AuthActivity extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-
+˚
         if (mPresenter == null){
             mPresenter = new AuthActivityPresenter();
         }
         mPresenter.attachView(this);
+
+        bottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
     }
 
@@ -280,15 +283,6 @@ public class AuthActivity extends AppCompatActivity implements
 
     @Override
     public void showBottomSheet() {
-
-
-        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.bottom_sh_no_userpick);
-
-
-
-//        NestedScrollView nestedScrollView = (NestedScrollView)  findViewById(R.id.bottom_sh_confirm_exchange);
-        bottomSheetBehavior = BottomSheetBehavior.from(constraintLayout);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
