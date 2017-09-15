@@ -72,7 +72,7 @@ public class AuthActivity extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-˚
+
         if (mPresenter == null){
             mPresenter = new AuthActivityPresenter();
         }
@@ -267,6 +267,9 @@ public class AuthActivity extends AppCompatActivity implements
 
     @Override
     public void animateUserInfoCardIn() {
+
+        mAuthButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
+        mAuthButton.setVisibility(View.GONE);
 
         userInfoCard.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_in_top));
         userInfoCard.setVisibility(View.VISIBLE);

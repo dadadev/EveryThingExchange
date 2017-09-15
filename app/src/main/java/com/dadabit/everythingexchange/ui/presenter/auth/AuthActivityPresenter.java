@@ -2,6 +2,7 @@ package com.dadabit.everythingexchange.ui.presenter.auth;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -12,6 +13,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.dadabit.everythingexchange.App;
+import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.model.Repository;
 import com.dadabit.everythingexchange.model.vo.User;
 import com.dadabit.everythingexchange.ui.presenter.BasePresenter;
@@ -52,21 +54,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
 
         if (getView().isLogOut()){
 
-            getView().getGoogleApiClient()
-                    .registerConnectionCallbacks(
-                            new GoogleApiClient.ConnectionCallbacks() {
-                                @Override
-                                public void onConnected(@Nullable Bundle bundle) {
-                                    logOut();
-                                }
-
-                                @Override
-                                public void onConnectionSuspended(int i) {
-                                    Log.d("@@@", "AuthActivityPresenter.registerConnectionCallbacks.onConnectionSuspended");
-
-                                }
-                            });
-
+            logOut();
 
         }
 
@@ -84,6 +72,8 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
     public void signInGoogleAccount(GoogleSignInAccount signInAccount) {
 
         getView().animateUserInfoCardIn();
+
+
 
         mFireBaseAuth
                 .signInWithCredential(
@@ -110,11 +100,30 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
 
     private void logOut() {
 
-        mFireBaseAuth.signOut();
+        getView().getGoogleApiClient()
+                .registerConnectionCallbacks(
+                        new GoogleApiClient.ConnectionCallbacks() {
+                            @Override
+                            public void onConnected(@Nullable Bundle bundle) {
 
-        Auth.GoogleSignInApi.signOut(getView().getGoogleApiClient());
+                                mFireBaseAuth.signOut();
 
-        mRepository.removeUser();
+                                Auth.GoogleSignInApi.signOut(getView().getGoogleApiClient());
+
+                                mRepository.removeUser();
+
+                            }
+
+                            @Override
+                            public void onConnectionSuspended(int i) {
+                                Log.d("@@@", "AuthActivityPresenter.registerConnectionCallbacks.onConnectionSuspended");
+
+                            }
+                        });
+
+
+
+
 
     }
 
@@ -127,35 +136,36 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
         if (mFireBaseUser != null
                 && mFireBaseUser.getPhotoUrl() != null){
 
-            Glide.with(getView().getAppContext())
-                    .load(mFireBaseUser.getPhotoUrl().toString())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            Log.d("@@@", "AuthActivity.mFireBaseUser.getPhotoUrl().onException");
+
+            getView().getEditText().setText(mFireBaseUser.getDisplayName());
+
+            getView().getImageView().setImageResource(R.drawable.ic_person_black_24dp);
 
 
-                            getView().showBottomSheet();
-
-                            // TODO: 10/09/2017  Handle no UserPick !!!
-
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            Log.d("@@@", "AuthActivityPresenter.mFireBaseUser.getPhotoUrl().onResourceReady");
-
-
-                            getView().getImageView().setVisibility(View.VISIBLE);
-                            getView().getCardView().setVisibility(View.VISIBLE);
-
-                            saveUser(mFireBaseUser);
-
-                            return false;
-                        }
-                    })
-            .into(getView().getImageView());
+//            Glide.with(getView().getAppContext())
+//                    .load(mFireBaseUser.getPhotoUrl().toString())
+//                    .listener(new RequestListener<String, GlideDrawable>() {
+//                        @Override
+//                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+//                            Log.d("@@@", "AuthActivity.mFireBaseUser.getPhotoUrl().onException");
+//
+//                            askUserPicChange();
+//
+//                            return false;
+//                        }
+//
+//
+//
+//                        @Override
+//                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+//                            Log.d("@@@", "AuthActivityPresenter.mFireBaseUser.getPhotoUrl().onResourceReady");
+//
+//                            saveUser(mFireBaseUser);
+//
+//                            return false;
+//                        }
+//                    })
+//            .into(getView().getImageView());
 
 
 
@@ -165,42 +175,64 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView>{
         }
     }
 
+    private void askUserPicChange() {
+
+        Glide.with(getView().getAppContext())
+                .load(R.drawable.ic_person_black_24dp)
+                .into(getView().getImageView());
+
+        getView().showBottomSheet();
+
+    }
+
     private void saveUser(final FirebaseUser mFireBaseUser) {
 
-        final String token = FirebaseInstanceId.getInstance().getToken();
+        setHandler(new Handler(getLooper()));
 
-        new GeocodeManager(getView().getAppContext(), new LocationResponseCallback() {
+        getHandler().postDelayed(new Runnable() {
             @Override
-            public void onResponse(String[] location) {
-
-                Log.d("@@@", "AuthActivityPresenter.GeocodeManager.onResponse");
+            public void run() {
 
 
-                getView().getProgressBar().setVisibility(View.GONE);
+                final String token = FirebaseInstanceId.getInstance().getToken();
+
+                new GeocodeManager(getView().getAppContext(), new LocationResponseCallback() {
+                    @Override
+                    public void onResponse(String[] location) {
+
+                        Log.d("@@@", "AuthActivityPresenter.GeocodeManager.onResponse");
+
+
+                        getView().getProgressBar().setVisibility(View.GONE);
 
 
 
-                Log.d("@@@", "AuthActivityPresenter.getPhotoUrl: "+ mFireBaseUser.getPhotoUrl().toString());
-                Log.d("@@@", "AuthActivityPresenter.getPhotoUrl.getPath: "+ mFireBaseUser.getPhotoUrl().getPath());
+                        Log.d("@@@", "AuthActivityPresenter.getPhotoUrl: "+ mFireBaseUser.getPhotoUrl().toString());
+                        Log.d("@@@", "AuthActivityPresenter.getPhotoUrl.getPath: "+ mFireBaseUser.getPhotoUrl().getPath());
 
 
 
-                if (mRepository.getSharedPreferences().saveUser(
-                        new User(
-                                mFireBaseUser.getUid(),
-                                token,
-                                mFireBaseUser.getDisplayName(),
-                                mFireBaseUser.getPhotoUrl().toString(),
-                                location[0],
-                                location[1]))){
+                        if (mRepository.getSharedPreferences().saveUser(
+                                new User(
+                                        mFireBaseUser.getUid(),
+                                        token,
+                                        mFireBaseUser.getDisplayName(),
+                                        mFireBaseUser.getPhotoUrl().toString(),
+                                        location[0],
+                                        location[1]))){
 
-                    mRepository.init();
+                            mRepository.init();
 
 
-                    getView().startMainActivity();
-                }
+                            getView().startMainActivity();
+                        }
+                    }
+                });
+
+
             }
-        });
+        }, 300);
+
     }
 
 
