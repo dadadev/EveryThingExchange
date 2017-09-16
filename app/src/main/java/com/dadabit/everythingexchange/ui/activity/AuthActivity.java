@@ -3,6 +3,7 @@ package com.dadabit.everythingexchange.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,16 +13,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.ui.presenter.auth.AuthActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.auth.AuthActivityView;
 import com.dadabit.everythingexchange.utils.Constants;
+import com.dadabit.everythingexchange.utils.Utils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -36,7 +41,8 @@ public class AuthActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         AuthActivityView {
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int RC_SIGN_IN = 9119;
+    private static final int RC_IMAGE_GALLERY = 1991;
 
     public static final String AUTH_ARGUMENT = "auth_arg";
 
@@ -45,7 +51,12 @@ public class AuthActivity extends AppCompatActivity implements
     @BindView(R.id.auth_card) CardView userInfoCard;
     @BindView(R.id.auth_card_editText) EditText etName;
     @BindView(R.id.auth_card_imageView) ImageView ivUserPic;
+
     @BindView(R.id.bottom_sh_no_userpick) ConstraintLayout mBottomSheet;
+    @BindView(R.id.bottom_sh_no_userpick_tv_message) TextView tvBottomSheet;
+    @BindView(R.id.bottom_sh_no_userpick_btn_ok) Button btnChangeUserPic;
+    @BindView(R.id.bottom_sh_no_userpick_btn_cancel) Button btnDefaultUserPic;
+
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -101,98 +112,47 @@ public class AuthActivity extends AppCompatActivity implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN) {
+        switch (requestCode){
 
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            case RC_SIGN_IN:
 
-            if (result.isSuccess()
-                    && mPresenter != null) {
 
-                mPresenter.signInGoogleAccount(result.getSignInAccount());
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
 
-            } else {
-                showAuthFailToast();
-            }
+                if (result.isSuccess()
+                        && mPresenter != null) {
+
+                    mPresenter.signInGoogleAccount(result.getSignInAccount());
+
+                } else {
+                    showAuthFailToast();
+                }
+
+                break;
+
+            case RC_IMAGE_GALLERY:
+
+                try {
+
+                    Bitmap bitmap = Utils.getImageBitmap(getActivityContext(), data.getData());
+
+                    ivUserPic.setImageBitmap(bitmap);
+
+                    mPresenter.changeUserImage(bitmap);
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    Toast.makeText(this, "Sorry, something went wrong",
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                break;
         }
+
     }
 
-//    private void fireBaseAuthWithGoogle(GoogleSignInAccount signInAccount) {
-//
-//        mFireBaseAuth
-//                .signInWithCredential(
-//                        GoogleAuthProvider
-//                                .getCredential(
-//                                        signInAccount.getIdToken(),
-//                                        null))
-//                .addOnCompleteListener(
-//                        this,
-//                        new OnCompleteListener<AuthResult>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<AuthResult> task) {
-//                                if (!task.isSuccessful()) {
-//                                    Toast.makeText(AuthActivity.this, R.string.toast_auth_fail,
-//                                            Toast.LENGTH_SHORT).show();
-//                                } else {
-//
-//                                    Log.d("@@@", "AuthActivity.fireBaseAuthWithGoogle.onComplete");
-//
-//                                    final FirebaseUser mFireBaseUser= mFireBaseAuth.getCurrentUser();
-//                                    final String token = FirebaseInstanceId.getInstance().getToken();
-//
-//                                    if (mFireBaseUser != null
-//                                            && mFireBaseUser.getPhotoUrl() != null){
-//
-//                                        new GeocodeManager(getApplicationContext(), new LocationResponseCallback() {
-//                                            @Override
-//                                            public void onResponse(String[] location) {
-//
-//                                                Log.d("@@@", "AuthActivity.GeocodeManager.onResponse");
-//
-//
-//                                                mProgressBar.setVisibility(View.GONE);
-//
-//                                                Glide.with(getApplicationContext())
-//                                                        .load(mFireBaseUser.getPhotoUrl().toString())
-//                                                        .listener(new RequestListener<String, GlideDrawable>() {
-//                                                            @Override
-//                                                            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-//                                                                Log.d("@@@", "AuthActivity.mFireBaseUser.getPhotoUrl().onException");
-//                                                                return false;
-//                                                            }
-//
-//                                                            @Override
-//                                                            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-//                                                                Log.d("@@@", "AuthActivity.mFireBaseUser.getPhotoUrl().onException");
-//                                                                return false;
-//                                                            }
-//                                                        });
-//
-//                                                Log.d("@@@", "AuthActivity.getPhotoUrl: "+ mFireBaseUser.getPhotoUrl().toString());
-//                                                Log.d("@@@", "AuthActivity.getPhotoUrl.getPath: "+ mFireBaseUser.getPhotoUrl().getPath());
-//
-//
-//
-//                                                if (mRepository.getSharedPreferences().saveUser(
-//                                                        new User(
-//                                                                mFireBaseUser.getUid(),
-//                                                                token,
-//                                                                mFireBaseUser.getDisplayName(),
-//                                                                mFireBaseUser.getPhotoUrl().toString(),
-//                                                                location[0],
-//                                                                location[1]))){
-//
-//                                                    mRepository.init();
-//
-//                                                    startActivity(new Intent(AuthActivity.this, MainActivity.class));
-//                                                    finish();
-//                                                }
-//                                            }
-//                                        });
-//                                    }
-//                                }
-//                            }
-//                        });
-//    }
 
 
     @Override
@@ -285,12 +245,68 @@ public class AuthActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void animateUserInfoCardOut() {
+
+        Animation animSlideOut = AnimationUtils.loadAnimation(this, R.anim.slide_out_top);
+        animSlideOut.setAnimationListener(
+                new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        userInfoCard.setVisibility(View.GONE);
+                        ivUserPic.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                }
+        );
+
+
+        mProgressBar.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
+        mProgressBar.setVisibility(View.GONE);
+
+        userInfoCard.startAnimation(animSlideOut);
+        ivUserPic.startAnimation(animSlideOut);
+
+    }
+
+    @Override
     public void showBottomSheet() {
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
 
 
+    }
+
+    @Override
+    public Button getChangeUserPicButton() {
+        return btnChangeUserPic;
+    }
+
+    @Override
+    public Button getDefaultUserPicButton() {
+        return btnDefaultUserPic;
+    }
+
+    @Override
+    public void getImageFromGallery() {
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        startActivityForResult(
+                new Intent(
+                        Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                RC_IMAGE_GALLERY);
     }
 }
 

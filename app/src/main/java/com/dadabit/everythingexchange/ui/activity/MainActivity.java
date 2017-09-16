@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
+        mAppBarLayout.setExpanded(false);
+
         setupToolbar();
 
         if (mPresenter == null){

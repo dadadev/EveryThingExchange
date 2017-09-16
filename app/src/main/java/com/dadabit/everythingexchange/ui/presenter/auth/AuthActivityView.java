@@ -1,6 +1,7 @@
 package com.dadabit.everythingexchange.ui.presenter.auth;
 
 import android.support.v7.widget.CardView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -35,5 +36,13 @@ public interface AuthActivityView extends MvpView {
 
     void animateUserInfoCardIn();
 
+    void animateUserInfoCardOut();
+
     void showBottomSheet();
+
+    Button getChangeUserPicButton();
+
+    Button getDefaultUserPicButton();
+
+    void getImageFromGallery();
 }
