@@ -310,6 +310,7 @@ public class FireBaseManager {
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                                                         FireBaseThingItem item = dataSnapshot.getValue(FireBaseThingItem.class);
+                                                        item.setFireBaseID(dataSnapshot.getKey());
 
                                                         if (item.getStatus() != Constants.THING_STATUS_EXCHANGING_IN_PROCESS){
 
@@ -473,7 +474,7 @@ public class FireBaseManager {
     }
 
     public void sendOffer(String path, FireBaseOfferItem offerItem){
-        Log.d("@@@", "FireBaseManager.sendOffer");
+        Log.d("@@@", "FireBaseManager.sendOffer => "+path);
 
         mDatabaseReference
                 .child(path)
