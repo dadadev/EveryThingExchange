@@ -12,6 +12,7 @@ import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
 import com.dadabit.everythingexchange.model.vo.User;
 import com.dadabit.everythingexchange.ui.presenter.personInfo.PersonThingsObserver;
 import com.dadabit.everythingexchange.utils.Constants;
+import com.dadabit.everythingexchange.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,10 +189,11 @@ public class PersonInfoActivityRepo {
             mainRepository
                     .getFireBaseManager()
                     .sendOffer(
-                            String.format("users/%s/offers/%s/%s",
+                            String.format("users/%s/offers/%s/%s/%s",
                                     things.get(chosenThing).getUserUid(),
                                     things.get(chosenThing).getFireBaseID(),
-                                    mainRepository.getUser().getUid()),
+                                    mainRepository.getUser().getUid(),
+                                    Utils.fireBasePathToId(availableThings.get(chosenMyThing).getFireBasePath())),
                             new FireBaseOfferItem(
                                     availableThings.get(chosenMyThing).getFireBasePath(),
                                     System.currentTimeMillis()));

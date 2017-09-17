@@ -103,13 +103,15 @@ public class SingleThingActivityRepo {
 
         if (currentOffer != null && chosenOfferPosition != -1){
 
-            mainRepository.getFireBaseManager().sendOffer(
-                    String.format("users/%s/offers/%s/%s/%s",
-                            getThing().getUserUid(),
-                            getThing().getFireBaseID(),
-                            mainRepository.getUser().getUid(),
-                            Utils.fireBasePathToId(currentOffer.getFireBaseThingPath())),
-                    currentOffer);
+            mainRepository
+                    .getFireBaseManager()
+                    .sendOffer(
+                            String.format("users/%s/offers/%s/%s/%s",
+                                    getThing().getUserUid(),
+                                    getThing().getFireBaseID(),
+                                    mainRepository.getUser().getUid(),
+                                    Utils.fireBasePathToId(currentOffer.getFireBaseThingPath())),
+                            currentOffer);
 
             mainRepository.getFireBaseManager().sendNotification(
                     mainRepository.getAppContext()
