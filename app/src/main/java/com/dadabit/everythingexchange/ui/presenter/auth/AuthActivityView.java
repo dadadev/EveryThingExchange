@@ -40,6 +40,8 @@ public interface AuthActivityView extends MvpView {
 
     void showBottomSheet();
 
+    void hideBottomSheet();
+
     Button getChangeUserPicButton();
 
     Button getDefaultUserPicButton();

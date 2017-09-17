@@ -2,6 +2,7 @@ package com.dadabit.everythingexchange.ui.presenter.auth;
 
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -33,7 +34,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
 
 import javax.inject.Inject;
 
@@ -146,7 +146,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
             Glide.with(getView().getAppContext())
                     .load(mFireBaseUser.getPhotoUrl().toString())
                     .crossFade()
-                    .error(R.drawable.ic_person_black_24dp)
+                    .error(R.drawable.ic_person_default)
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -273,13 +273,20 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
 
             case R.id.bottom_sh_no_userpick_btn_ok:
 
+                getView().hideBottomSheet();
+
                 getView().getImageFromGallery();
 
                 break;
 
             case R.id.bottom_sh_no_userpick_btn_cancel:
 
+                getView().hideBottomSheet();
 
+                changeUserImage(
+                        BitmapFactory.decodeResource(
+                                getView().getActivityContext().getResources(),
+                                R.drawable.ic_person_default));
 
                 break;
 

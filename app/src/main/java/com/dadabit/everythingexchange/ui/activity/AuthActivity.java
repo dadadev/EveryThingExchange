@@ -283,8 +283,12 @@ public class AuthActivity extends AppCompatActivity implements
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
+    }
 
+    @Override
+    public void hideBottomSheet() {
 
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     @Override
@@ -299,8 +303,6 @@ public class AuthActivity extends AppCompatActivity implements
 
     @Override
     public void getImageFromGallery() {
-
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         startActivityForResult(
                 new Intent(
