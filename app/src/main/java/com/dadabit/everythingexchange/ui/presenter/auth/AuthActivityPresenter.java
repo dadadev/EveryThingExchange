@@ -68,6 +68,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        getView().vibrate(50);
                         getView().authorizeGoogle();
                     }
                 }
@@ -97,7 +98,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
 
                                 } else {
 
-                                    getView().showAuthFailToast();
+                                    getView().showToast(R.string.toast_auth_fail);
 
                                 }
                             }
@@ -179,6 +180,7 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
     }
 
     private void askUserPicChange() {
+        Log.d("@@@", "AuthActivityPresenter.askUserPicChange");
 
         getView().showBottomSheet();
 
@@ -197,41 +199,49 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
 
                 Log.d("@@@", "AuthActivityPresenter.GeocodeManager.onResponse");
 
+                if (location == null){
 
-                getView().animateUserInfoCardOut();
+                    getView().showToast(R.string.toast_no_location);
 
-
-                setHandler(new Handler(getLooper()));
-
-                getHandler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        Log.d("@@@", "AuthActivityPresenter.getPhotoUrl: "+ mFireBaseUser.getPhotoUrl().toString());
-                        Log.d("@@@", "AuthActivityPresenter.getPhotoUrl.getPath: "+ mFireBaseUser.getPhotoUrl().getPath());
-
-                        final String token = FirebaseInstanceId.getInstance().getToken();
+                } else {
 
 
-                        if (mRepository
-                                .getSharedPreferences()
-                                .saveUser(
-                                        new User(
-                                                mFireBaseUser.getUid(),
-                                                token,
-                                                mFireBaseUser.getDisplayName(),
-                                                userPicUrl,
-                                                location[0],
-                                                location[1]))){
+                    getView().animateUserInfoCardOut();
 
-                            mRepository.init();
+                    setHandler(new Handler(getLooper()));
 
-                            getView().startMainActivity();
+                    getHandler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Log.d("@@@", "AuthActivityPresenter.getPhotoUrl: "+ mFireBaseUser.getPhotoUrl().toString());
+                            Log.d("@@@", "AuthActivityPresenter.getPhotoUrl.getPath: "+ mFireBaseUser.getPhotoUrl().getPath());
+
+                            final String token = FirebaseInstanceId.getInstance().getToken();
+
+
+                            if (mRepository
+                                    .getSharedPreferences()
+                                    .saveUser(
+                                            new User(
+                                                    mFireBaseUser.getUid(),
+                                                    token,
+                                                    mFireBaseUser.getDisplayName(),
+                                                    userPicUrl,
+                                                    location[0],
+                                                    location[1]))){
+
+                                mRepository.init();
+
+                                getView().startMainActivity();
+
+                            }
 
                         }
+                    }, 400);
 
-                    }
-                }, 400);
+                }
+
             }
         });
     }
@@ -268,6 +278,8 @@ public class AuthActivityPresenter extends BasePresenter<AuthActivityView> imple
 
     @Override
     public void onClick(View v) {
+
+        getView().vibrate(50);
 
         switch (v.getId()){
 

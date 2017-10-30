@@ -122,6 +122,25 @@
             android:layout_marginEnd="8dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+        <TextureView
+            android:id="@+id/main.textureView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:visibility="gone"
+            />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/main.fabCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_camera_black_24dp"
+            android:visibility="gone"
+            />
+
         <ProgressBar
             android:id="@+id/main.progress_bar"
             android:layout_width="50dp"
@@ -140,7 +159,7 @@
             app:itemTextColor="@android:color/black"
             app:layout_anchor="@+id/main.recyclerView"
             app:layout_anchorGravity="bottom"
-            app:menu="@menu/menu_bottom_navigation" />
+            app:menu="@menu/bottom_navigation" />
 
 
     </android.support.design.widget.CoordinatorLayout>
@@ -152,6 +171,8 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/view_side_bar_header"
         android:fitsSystemWindows="true"
-        app:menu="@menu/drawer_menu"/>
+        app:menu="@menu/drawer_menu">
+
+    </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>

@@ -87,7 +87,10 @@
 
     <string name="toast_close_app">Press Back again to Exit</string>
     <string name="toast_auth_fail">Authentication failed.</string>
+    <string name="toast_no_location">Your Last Location is unknown \nPlease check your location with Google Maps</string>
     <string name="toast_play_service_error">Google Play Services error.</string>
+    <string name="toast_error">Sorry, something went wrong</string>
+
     <string name="spam_report">Spam report</string>
     <string name="bottom_sh_no_userpick_question">Do you want change default user picture?</string>
     <string name="bottom_sh_no_userpick_btn_cancel">Use default</string>

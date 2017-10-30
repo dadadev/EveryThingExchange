@@ -19,9 +19,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.model.Repository;
@@ -98,6 +95,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 if (mRepository.getState().getAdapterType() != Constants.ADAPTER_TYPE_CATEGORIES){
                     Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: bottomMenu_categories. show");
 
+
+                    getView().vibrate(10);
+
                     showCategories(mRepository.getState().getAdapterType());
 
                 }
@@ -110,6 +110,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 if (mRepository.getState().getAdapterType() != Constants.ADAPTER_TYPE_MY_THINGS){
 
+                    getView().vibrate(10);
+
                     showMyThings(mRepository.getState().getAdapterType());
 
                 }
@@ -117,10 +119,18 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 break;
             case R.id.bottomMenu_addNewThing:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: bottomMenu_addNew");
-                getView().startAddThingActivity();
+
+                getView().vibrate(30);
+
+//                getView().startAddThingActivity();
+
+                showCamera();
+
                 break;
             case R.id.side_bar_name:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: side_bar_name");
+
+                getView().vibrate(10);
 
                 getView().getDrawerLayout().closeDrawer(GravityCompat.START);
 
@@ -140,12 +150,17 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
             case R.id.side_bar_location:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: side_bar_location");
 
+                getView().vibrate(10);
+
                 getView().getDrawerLayout().closeDrawer(GravityCompat.START);
+
                 showLocations(mRepository.getState().getAdapterType());
 
                 break;
             case R.id.side_bar_sign_out:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: side_bar_sign_out");
+
+                getView().vibrate(350);
 
                 getView().getDrawerLayout().closeDrawer(GravityCompat.START);
 
@@ -156,11 +171,53 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         return true;
     }
 
+    private void showCamera() {
+
+        getView().showCamera();
+
+        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_CAMERA);
+
+        getView().vibrate(20);
+
+        getView().getAppBarLayout().setExpanded(false,true);
+
+        getView().animateMenuIcon(true);
+
+        getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_addNewThing));
+
+        getView().animateRecyclerOut(
+                Constants.DIRECTION_RIGHT,
+                1000,
+                new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+
+                        navigationViewBehavior.slideDown();
+
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+    }
+
 
     private CategoriesAdapter.CategoriesClickCallback categoriesClickCallback = new CategoriesAdapter.CategoriesClickCallback() {
         @Override
         public void onClick(int position) {
             Log.d("@@@", "MainActivityPresenter.CategoriesAdapter.onClick: "+mRepository.getCategories().get(position).getName());
+
+            getView().vibrate(10);
 
             mRepository.getState().setChosenCategory(position);
 
@@ -187,6 +244,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 }
             });
 
+
         }
     };
 
@@ -194,6 +252,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         @Override
         public void onThingClick(int position) {
             Log.d("@@@", "MainActivityPresenter.FireBaseThingsAdapter.onThingClick: "+position);
+
+            getView().vibrate(10);
 
             mRepository.getState().setChosenFireBaseThing(position);
 
@@ -205,6 +265,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         @Override
         public void onClick(int position, int type, String thingId) {
             Log.d("@@@", "MainActivityPresenter.MyThingsClickCallback: "+position);
+
+
+            getView().vibrate(10);
 
             if (type == Constants.THING_STATUS_EXCHANGING_IN_PROCESS){
 
@@ -227,6 +290,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         public void onClick(int position, int id) {
             Log.d("@@@", "ChatsActivityPresenter.ChatsClickCallback.onClick: "+position +" id:" +id);
 
+            getView().vibrate(10);
+
             mRepository.getState().setChosenChatId(id);
             getView().startSingleChat(position, Constants.ADAPTER_TYPE_CHATS);
         }
@@ -238,6 +303,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 public void onLocationClick(String location) {
                     Log.d("@@@", "MainActivityPresenter.locationsAdapterClickCallback: "+location);
 
+                    getView().vibrate(10);
 
                     mRepository.getUser().setLocation(location);
 
@@ -366,6 +432,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+                        getView().vibrate(10);
+
                         showChats(mRepository.getState().getAdapterType());
                     }
                 });
@@ -376,6 +445,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     public void onClick(View v) {
                         if (mRepository.getState().getAdapterType()
                                 == Constants.ADAPTER_TYPE_CATEGORIES){
+
+                            getView().vibrate(10);
+
                             showLocations(Constants.ADAPTER_TYPE_CATEGORIES);
                         }
                     }
@@ -427,6 +499,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
             getView().getNavigationView().setVisibility(View.INVISIBLE);
 
         }
+
     }
 
 
@@ -445,6 +518,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_DOWN,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -470,6 +544,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_RIGHT,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -495,6 +570,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -523,6 +599,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -578,6 +655,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_LEFT,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -604,6 +682,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_LEFT,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -629,6 +708,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -638,7 +718,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                             @Override
                             public void onAnimationEnd(Animation animation) {
 
-//                                setMyThingsAdapter();
                                 setRecyclerAdapter(Constants.ADAPTER_TYPE_MY_THINGS);
 
                             }
@@ -663,6 +742,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -684,6 +764,14 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 break;
 
+
+            case Constants.ADAPTER_TYPE_CAMERA:
+
+                setRecyclerAdapter(Constants.ADAPTER_TYPE_MY_THINGS);
+
+                break;
+
+
         }
 
 
@@ -701,6 +789,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_DOWN,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -710,7 +799,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                             @Override
                             public void onAnimationEnd(Animation animation) {
 
-//                                setChatsAdapter();
                                 setRecyclerAdapter(Constants.ADAPTER_TYPE_CHATS);
 
                             }
@@ -727,6 +815,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_DOWN,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -752,6 +841,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_RIGHT,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -778,6 +868,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -815,6 +906,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_DOWN,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -840,6 +932,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_DOWN,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -865,6 +958,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_RIGHT,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -890,6 +984,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().animateRecyclerOut(
                         Constants.DIRECTION_UP,
+                        400,
                         new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
@@ -949,7 +1044,19 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 setLocationsAdapter();
 
                 break;
+
+            case Constants.ADAPTER_TYPE_CAMERA:
+
+                setCameraView();
+
+                break;
         }
+    }
+
+    private void setCameraView() {
+
+
+
     }
 
 
@@ -1150,9 +1257,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 new ChatItemsManager.MessagesCounterListener() {
                     @Override
                     public void onCounterChange(final int counter) {
-
                         if (isViewAttached()){
-
                             getUiHandler().post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1162,10 +1267,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                                     } else {
                                         getView().getChatsCountTextView().setVisibility(View.GONE);
                                     }
-
                                 }
                             });
-
                         }
                     }
                 }
@@ -1198,7 +1301,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     public Boolean exit = false;
     public void onBackButtonPressed(){
-        Log.d("@@@", "MainActivityPresenter.onBackButtonPressed");
+        Log.d("@@@", "MainActivityPresenter.onBackButtonPressed\nAdapter Type: "+mRepository.getState().getAdapterType());
+
+        getView().vibrate(15);
 
         switch (mRepository.getState().getAdapterType()){
 
@@ -1231,6 +1336,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().animateRecyclerOut(
                                 Constants.DIRECTION_RIGHT,
+                                400,
                                 new Animation.AnimationListener() {
                                     @Override
                                     public void onAnimationStart(Animation animation) {
@@ -1292,6 +1398,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().animateRecyclerOut(
                                 Constants.DIRECTION_DOWN,
+                                400,
                                 new Animation.AnimationListener() {
                                     @Override
                                     public void onAnimationStart(Animation animation) {
@@ -1337,6 +1444,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().animateRecyclerOut(
                                 Constants.DIRECTION_DOWN,
+                                400,
                                 new Animation.AnimationListener() {
                                     @Override
                                     public void onAnimationStart(Animation animation) {
@@ -1347,6 +1455,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                                     public void onAnimationEnd(Animation animation) {
 
                                         setRecyclerAdapter(Constants.ADAPTER_TYPE_FIREBASE_THINGS);
+
+
 
                                     }
 
@@ -1381,6 +1491,102 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 break;
 
+
+            case Constants.ADAPTER_TYPE_CAMERA:
+
+
+                Log.d("@@@", "MainActivityPresenter.onBackButtonPressed.ADAPTER_TYPE_CAMERA");
+
+                getView().hideCamera(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        Log.d("@@@", "MainActivityPresenter.onBackButtonPressed.ADAPTER_TYPE_CAMERA.onAnimationEnd");
+
+
+                        getView().getTextureView().setVisibility(View.GONE);
+
+                        switch (mRepository.getState().getPreviousAdapterType()){
+
+                            case Constants.ADAPTER_TYPE_CATEGORIES:
+
+                                Log.d("@@@", "MainActivityPresenter.onBackButtonPressed.ADAPTER_TYPE_CAMERA.onAnimationEnd.case: ADAPTER_TYPE_CATEGORIES");
+
+                                getView().animateMenuIcon(false);
+
+                                getView().animateTitleChange(mRepository.getUser().getLocation());
+
+                                setCategoriesAdapter();
+
+                                getView().getNavigationView().setSelectedItemId(R.id.bottomMenu_categories);
+
+                                break;
+
+                            case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
+
+                                setFireBaseThingsAdapter();
+
+
+                                if (navigationViewBehavior != null && navigationViewBehavior.isDown){
+                                    navigationViewBehavior.slideUp();
+                                }
+
+                                break;
+                            case Constants.ADAPTER_TYPE_MY_THINGS:
+
+                                getView().animateTitleChange(
+                                        getView().getActivityContext().getString(R.string.title_my_things));
+
+                                setMyThingsAdapter();
+
+                                getView().getNavigationView().setSelectedItemId(R.id.bottomMenu_myThings);
+
+
+                                if (navigationViewBehavior != null && navigationViewBehavior.isDown){
+                                    navigationViewBehavior.slideUp();
+                                }
+
+
+                                break;
+
+                            case Constants.ADAPTER_TYPE_CHATS:
+
+                                getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_chats));
+
+                                setChatsAdapter();
+
+                                break;
+
+                            case Constants.ADAPTER_TYPE_LOCATION:
+
+                                setLocationsAdapter();
+
+                            default:
+
+                                Log.d("@@@", "MainActivityPresenter.onBackButtonPressed.ADAPTER_TYPE_CAMERA.onAnimationEnd.case: default");
+
+
+                                showCategories(Constants.ADAPTER_TYPE_LOCATION);
+
+                                break;
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                break;
+
         }
 
     }
@@ -1402,7 +1608,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         }
     }
 
-    public boolean isNewName(String name) {
+    public boolean isNewNameAdded(String name) {
 
         if (name.equals(mRepository.getUser().getName())){
             return false;

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/single_chat.recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:background="@color/white"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/single_chat.linearLayout"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/single_chat.linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <EditText
+            android:id="@+id/single_chat.msgEditText"
+            android:background="@drawable/chip_chat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_margin="4dp"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:inputType="textCapSentences|textAutoComplete|textAutoCorrect"
+
+            />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/single_chat.fab_sendButton"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/ic_send_black_24dp"
+            />
+
+
+    </LinearLayout>
+
+</RelativeLayout>

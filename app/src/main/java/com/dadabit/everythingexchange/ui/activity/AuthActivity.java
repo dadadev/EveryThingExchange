@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -125,7 +126,9 @@ public class AuthActivity extends AppCompatActivity implements
                     mPresenter.signInGoogleAccount(result.getSignInAccount());
 
                 } else {
-                    showAuthFailToast();
+
+                    showToast(R.string.toast_auth_fail);
+
                 }
 
                 break;
@@ -144,8 +147,8 @@ public class AuthActivity extends AppCompatActivity implements
                 } catch (Exception e) {
                     e.printStackTrace();
 
-                    Toast.makeText(this, "Sorry, something went wrong",
-                            Toast.LENGTH_SHORT).show();
+                    showToast(R.string.toast_error);
+
                 }
 
                 break;
@@ -220,10 +223,14 @@ public class AuthActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void showAuthFailToast() {
-        Toast.makeText(this, R.string.toast_auth_fail,
-                Toast.LENGTH_SHORT).show();
+    public void showToast(int resId) {
+
+        vibrate(350);
+
+        Toast.makeText(this, resId, Toast.LENGTH_LONG).show();
+
     }
+
 
     @Override
     public void animateUserInfoCardIn() {
@@ -309,6 +316,18 @@ public class AuthActivity extends AppCompatActivity implements
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
                 RC_IMAGE_GALLERY);
+    }
+
+    @Override
+    public void vibrate(int duration) {
+
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null &&
+                vibrator.hasVibrator()){
+
+            vibrator.vibrate(duration);
+
+        }
     }
 }
 

@@ -3,6 +3,7 @@ package com.dadabit.everythingexchange.utils;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
+import android.util.Log;
 import android.view.View;
 
 public class BottomNavigationViewBehavior extends CoordinatorLayout.Behavior<BottomNavigationView> {
@@ -13,7 +14,9 @@ public class BottomNavigationViewBehavior extends CoordinatorLayout.Behavior<Bot
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, BottomNavigationView child, int layoutDirection) {
+
         height = child.getHeight();
+        mBottomNavigationView = child;
         return super.onLayoutChild(parent, child, layoutDirection);
     }
 
@@ -24,7 +27,9 @@ public class BottomNavigationViewBehavior extends CoordinatorLayout.Behavior<Bot
 
     @Override
     public void onNestedScroll(CoordinatorLayout coordinatorLayout, BottomNavigationView child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+
         mBottomNavigationView = child;
+
         if (dyConsumed > 0) {
             slideDown();
         } else if (dyConsumed < 0) {
@@ -42,9 +47,17 @@ public class BottomNavigationViewBehavior extends CoordinatorLayout.Behavior<Bot
     }
 
     public void slideDown() {
-        mBottomNavigationView.clearAnimation();
-        mBottomNavigationView.animate().translationY(height).setDuration(200);
-        isDown = true;
+
+        if (mBottomNavigationView != null
+                && !isDown){
+
+            mBottomNavigationView.clearAnimation();
+            mBottomNavigationView.animate().translationY(height).setDuration(200);
+            isDown = true;
+
+        } else {
+            Log.d("@@@", "BottomNavigationViewBehavior.slideDown.mBottomNavigationView == null !!!");
+        }
     }
 
 

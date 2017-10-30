@@ -42,7 +42,6 @@ public class SingleChatActivity extends AppCompatActivity implements SingleChatA
     @BindView(R.id.single_chat_recyclerView) RecyclerView mRecyclerView;
     @BindView(R.id.single_chat_msgEditText) EditText mEditText;
     @BindView(R.id.single_chat_fab_sendButton) ImageView mSendButton;
-    @BindView(R.id.single_chat_linearLayout) LinearLayout inputLayout;
     @BindView(R.id.single_chat_fab) FloatingActionButton mFab;
     @BindView(R.id.single_chat_companionImg) ImageView ivCompanion;
 
@@ -199,11 +198,6 @@ public class SingleChatActivity extends AppCompatActivity implements SingleChatA
     @Override
     public ImageView getCompanionImageView() {
         return ivCompanion;
-    }
-
-    @Override
-    public LinearLayout getInputLayout() {
-        return inputLayout;
     }
 
     @Override

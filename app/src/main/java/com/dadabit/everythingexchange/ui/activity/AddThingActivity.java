@@ -120,14 +120,23 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
+        if (requestCode == REQUEST_IMAGE_CAPTURE
+                && resultCode == Activity.RESULT_OK){
             Log.d("@@@", "AddThingActivity.onActivityResult.resultCode = OK");
 
             try {
 
-                image = Utils.getImageBitmap(
-                        getActivityContext(),
-                        data.getData());
+                if (data.getData() == null){
+
+                    Log.d("@@@", "AddThingActivity.onActivityResult. NO URI");
+
+                } else {
+
+                    image = Utils.getImageBitmap(
+                            getActivityContext(),
+                            data.getData());
+                }
+
 
             } catch (IOException e) {
                 e.printStackTrace();

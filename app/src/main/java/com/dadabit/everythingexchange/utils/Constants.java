@@ -30,6 +30,7 @@ public class Constants {
     public static final int ADAPTER_TYPE_MY_THINGS = 2;
     public static final int ADAPTER_TYPE_CHATS = 3;
     public static final int ADAPTER_TYPE_LOCATION = 4;
+    public static final int ADAPTER_TYPE_CAMERA = 5;
 
     public static final int IS_SHOWN = 0;
     public static final int IS_HIDDEN = 1;

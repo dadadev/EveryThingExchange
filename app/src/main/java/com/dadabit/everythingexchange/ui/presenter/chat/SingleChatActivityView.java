@@ -31,8 +31,6 @@ public interface SingleChatActivityView extends MvpView {
 
     ImageView getCompanionImageView();
 
-    LinearLayout getInputLayout();
-
     TextSwitcher getDateTextSwitcher();
 
     ImageView getCardThing1ImageView();

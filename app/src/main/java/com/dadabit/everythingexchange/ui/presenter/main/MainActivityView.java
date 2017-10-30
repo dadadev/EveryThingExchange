@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.TextureView;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -20,6 +21,9 @@ import com.dadabit.everythingexchange.ui.adapter.FireBaseThingsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.MvpView;
 
 public interface MainActivityView extends MvpView {
+
+
+    //    ====================GETTERS========================
 
     BottomNavigationView getNavigationView();
 
@@ -45,6 +49,13 @@ public interface MainActivityView extends MvpView {
 
     ProgressBar getProgressBar();
 
+    ActionBar getActivityActionBar();
+
+    TextureView getTextureView();
+
+//    ====================TRANSITIONS========================
+
+
     void startAuthActivity(int arg);
 
     void startSingleThingActivity(int position);
@@ -55,11 +66,10 @@ public interface MainActivityView extends MvpView {
 
     void startSingleChat(int position, int adapterType);
 
-    void showToast(String message);
+
+    //    ====================ANIMATIONS========================
 
     void animateCategoriesClicked(int position, Animation.AnimationListener animationListener);
-
-    ActionBar getActivityActionBar();
 
     void animateMenuIcon(boolean isBack);
 
@@ -67,8 +77,16 @@ public interface MainActivityView extends MvpView {
 
     void animateRecyclerIn(int direction, Animation.AnimationListener animationListener);
 
-    void animateRecyclerOut(int direction, Animation.AnimationListener animationListener);
+    void animateRecyclerOut(int direction, int duration, Animation.AnimationListener animationListener);
+
+    void showCamera();
+
+    void hideCamera(Animation.AnimationListener animationListener);
+
+    void showToast(String message);
 
     void showUserInfoDialog(String name, String imgUrl);
+
+    void vibrate(int duration);
 }
 

@@ -38,7 +38,8 @@ public class GeocodeManager {
     private void getCoordinates() {
 
 
-        if (ActivityCompat.checkSelfPermission(context,
+        if (ActivityCompat.checkSelfPermission(
+                context,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(
                         context,
@@ -52,22 +53,47 @@ public class GeocodeManager {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+
+            Log.d("@@@", "GeocodeManager.isGpsProviderEnabled == TRUE");
+
+        } else {
+
+            Log.d("@@@", "GeocodeManager.isGpsProviderEnabled == FALSE");
+
+        }
+
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+
+            Log.d("@@@", "GeocodeManager.isNetworkProviderEnabled == TRUE");
+
+        } else {
+
+            Log.d("@@@", "GeocodeManager.isNetworkProviderEnabled == FALSE");
+
+        }
+
         Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         if (locationGPS != null){
+
             latitude = locationGPS.getLatitude();
             longitude = locationGPS.getLongitude();
+
         } else {
             Log.d("@@@", "GeocodeManager.locationGPS == null");
 
             Location locationNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
             if (locationNet != null){
+
                 latitude = locationNet.getLatitude();
                 longitude = locationNet.getLongitude();
-            } else {
-                Log.d("@@@", "GeocodeManager.locationNetwork == null");
 
+            } else {
+
+                Log.d("@@@", "GeocodeManager.locationNet == null");
             }
         }
 
@@ -123,6 +149,10 @@ public class GeocodeManager {
                     Log.d("@@@", "MainActivityPresenter.onErrorResponse: "+t.getMessage());
                 }
             });
+
+        } else {
+
+            mCallback.onResponse(null);
 
         }
 

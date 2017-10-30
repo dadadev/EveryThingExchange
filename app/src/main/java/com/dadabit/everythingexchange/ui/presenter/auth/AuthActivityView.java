@@ -32,7 +32,7 @@ public interface AuthActivityView extends MvpView {
 
     void startMainActivity();
 
-    void showAuthFailToast();
+    void showToast(int resId);
 
     void animateUserInfoCardIn();
 
@@ -47,4 +47,6 @@ public interface AuthActivityView extends MvpView {
     Button getDefaultUserPicButton();
 
     void getImageFromGallery();
+
+    void vibrate(int duration);
 }

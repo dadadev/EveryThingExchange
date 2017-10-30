@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -39,6 +44,8 @@ import com.dadabit.everythingexchange.ui.adapter.MyThingsAdapter;
 import com.dadabit.everythingexchange.ui.fragment.UserInfoDialog;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityView;
+import com.dadabit.everythingexchange.utils.CamManager;
+import com.dadabit.everythingexchange.utils.CameraHelper;
 import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.Utils;
 
@@ -47,7 +54,9 @@ import butterknife.ButterKnife;
 
 
 @SuppressWarnings("ConstantConditions")
-public class MainActivity extends AppCompatActivity implements
+public class MainActivity
+        extends AppCompatActivity
+        implements
         MainActivityView,
         TextSwitcher.ViewFactory,
         UserInfoDialog.UserChangeDialogListener{
@@ -63,18 +72,25 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.main_toolbar_icChat) ImageView chatsButton;
     @BindView(R.id.main_toolbar_icChat_badge_textView) TextView tvChatsCount;
     @BindView(R.id.main_recyclerView) RecyclerView mRecyclerView;
+    @BindView(R.id.main_textureView) TextureView mTextureView;
     @BindView(R.id.main_bottomNavigationView) BottomNavigationView mNavigationView;
     @BindView(R.id.main_progress_bar) ProgressBar mProgressBar;
     @BindView(R.id.main_toolbar_text_switcher) TextSwitcher mToolbarTitle;
+    @BindView(R.id.main_fabCamera) FloatingActionButton btnCamera;
 
 
     public static MainActivityPresenter mPresenter;
 
     private AnimatedVectorDrawable mMenuDrawable;
     private AnimatedVectorDrawable mBackDrawable;
+
     private boolean goBack;
 
     private UserInfoDialog userInfoDialog;
+
+    private CameraHelper mCameraHelper;
+    private CamManager mCamManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +100,14 @@ public class MainActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
-        mAppBarLayout.setExpanded(false);
+        mAppBarLayout.setExpanded(false, false);
 
         setupToolbar();
 
         if (mPresenter == null){
             mPresenter = new MainActivityPresenter();
         }
+
         mPresenter.attachView(this);
 
 
@@ -100,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
         getSupportActionBar().setHomeButtonEnabled(true);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
 
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_vector);
@@ -117,8 +135,10 @@ public class MainActivity extends AppCompatActivity implements
         getSupportActionBar().setHomeButtonEnabled(true);
 
         mToolbarTitle.setFactory(this);
-        mToolbarTitle.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_in_left));
-        mToolbarTitle.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_out_right));
+        mToolbarTitle.setInAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.slide_in_left));
+        mToolbarTitle.setOutAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.slide_out_right));
 
 
     }
@@ -159,6 +179,12 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("@@@", "MainActivity.onDestroy");
         super.onDestroy();
         mPresenter.detachView();
+
+        if (mCameraHelper != null){
+            mCameraHelper.closeCamera();
+            mCameraHelper = null;
+        }
+
         if (isFinishing()) {
             mPresenter.detachListeners();
             mPresenter = null;
@@ -180,6 +206,10 @@ public class MainActivity extends AppCompatActivity implements
         }
 
     }
+
+
+//    ====================GETTERS========================
+
 
     @Override
     public Context getAppContext() {
@@ -256,6 +286,15 @@ public class MainActivity extends AppCompatActivity implements
     public ActionBar getActivityActionBar() {
         return getSupportActionBar();
     }
+
+    @Override
+    public TextureView getTextureView() {
+        return mTextureView;
+    }
+
+
+//    ====================TRANSITIONS========================
+
 
     @Override
     public void startAuthActivity(int arg) {
@@ -393,11 +432,9 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void showToast(String message) {
-        Toast.makeText(this, message,
-                Toast.LENGTH_SHORT).show();
-    }
+
+//    ====================ANIMATIONS========================
+
 
     @Override
     public void animateCategoriesClicked(int position, Animation.AnimationListener animationListener) {
@@ -455,7 +492,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     public void animateMenuIcon(boolean isBack) {
 
@@ -483,7 +519,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("@@@", "MainActivity.animateTitleChange "+title);
         mToolbarTitle.setText(title);
     }
-
 
     @Override
     public void animateRecyclerIn(int direction, Animation.AnimationListener animationListener) {
@@ -543,13 +578,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void animateRecyclerOut(int direction, Animation.AnimationListener animationListener) {
+    public void animateRecyclerOut(int direction, int duration, Animation.AnimationListener animationListener) {
         switch (direction){
             case Constants.DIRECTION_LEFT:
 
                 Animation animLeft = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
 
-                animLeft.setDuration(400);
+                animLeft.setDuration(duration);
 
                 animLeft.setAnimationListener(animationListener);
 
@@ -560,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements
             case Constants.DIRECTION_RIGHT:
                 Animation animRight = AnimationUtils.loadAnimation(this, R.anim.slide_out_right);
 
-                animRight.setDuration(400);
+                animRight.setDuration(duration);
 
                 animRight.setAnimationListener(animationListener);
 
@@ -573,7 +608,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 Animation animUp = AnimationUtils.loadAnimation(this, R.anim.slide_out_top);
 
-                animUp.setDuration(400);
+                animUp.setDuration(duration);
 
                 animUp.setAnimationListener(animationListener);
 
@@ -586,7 +621,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 Animation animDown = AnimationUtils.loadAnimation(this, R.anim.slide_out_bottom);
 
-                animDown.setDuration(400);
+                animDown.setDuration(duration);
 
                 animDown.setAnimationListener(animationListener);
 
@@ -597,6 +632,107 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+
+
+//    ====================ACTIONS========================
+
+
+    @Override
+    public void showCamera() {
+
+        try {
+
+            CameraManager mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+
+            mCamManager = new CamManager(mCameraManager);
+
+
+            String[] cameraList = mCameraManager != null ? mCameraManager.getCameraIdList() : null;
+
+            mCameraHelper = new CameraHelper(mCameraManager, cameraList[0]);
+
+            mCameraHelper.openCamera();
+
+            Utils.lockScreenOrientation(this);
+
+            mTextureView.setVisibility(View.VISIBLE);
+
+            mCameraHelper.setTextureView(mTextureView);
+
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
+            animation.setStartOffset(500);
+            animation.setDuration(600);
+
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+
+                    btnCamera.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_bottom));
+                    btnCamera.setVisibility(View.VISIBLE);
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            mTextureView.startAnimation(animation);
+
+
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @Override
+    public void hideCamera(Animation.AnimationListener animationListener) {
+
+        if (mCameraHelper != null){
+
+            mCameraHelper.closeCamera();
+
+            mCameraHelper = null;
+
+        }
+
+        if (btnCamera.getVisibility() != View.GONE){
+
+            btnCamera.startAnimation(AnimationUtils
+                    .loadAnimation(MainActivity.this, R.anim.slide_out_bottom));
+            btnCamera.setVisibility(View.GONE);
+
+        }
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+        animation.setStartOffset(300);
+        animation.setDuration(600);
+        animation.setAnimationListener(animationListener);
+
+        mTextureView.startAnimation(animation);
+
+        Utils.unlockScreenOrientation(this);
+
+    }
+
+
+
+
+    @Override
+    public void showToast(String message) {
+        Toast.makeText(this, message,
+                Toast.LENGTH_SHORT).show();
+    }
+
+
     @Override
     public void showUserInfoDialog(String name, String imgUrl) {
         Log.d("@@@", "MainActivity.showUserInfoDialog");
@@ -605,7 +741,17 @@ public class MainActivity extends AppCompatActivity implements
         userInfoDialog.show(getSupportFragmentManager(), "user_info_dialog");
 
 
+    }
 
+    @Override
+    public void vibrate(int duration) {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null &&
+                vibrator.hasVibrator()){
+
+            vibrator.vibrate(duration);
+
+        }
     }
 
 
@@ -613,7 +759,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public View makeView() {
         TextView textView = new TextView(this);
-//        textView.setGravity(Gravity.START | Gravity.CENTER_HORIZONTAL);
         textView.setTextColor(Color.WHITE);
         textView.setTextSize(20);
         return textView;
@@ -622,11 +767,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onUserNameChange(String name) {
 
-        if (mPresenter!= null
-                && mPresenter.isNewName(name)){
-
+        if (mPresenter!= null &&
+                mPresenter.isNewNameAdded(name))
+        {
             showToast("New user name: "+name);
-
         }
     }
 

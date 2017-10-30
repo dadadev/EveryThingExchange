@@ -1,6 +1,8 @@
 package com.dadabit.everythingexchange.model.vo;
 
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,14 @@ public class MainActivityState {
     public int getPreviousAdapterType() {
         if (adapterTypeStack.size() > 0){
 
+            Log.d("@@@", "MainActivityState.adapterTypeStack.Remove: "+adapterTypeStack.get(adapterTypeStack.size()-1));
+
             adapterTypeStack.remove(adapterTypeStack.size()-1);
+
+
+            int i = adapterTypeStack.size() > 1 ? adapterTypeStack.get(adapterTypeStack.size()-1) : 0;
+            Log.d("@@@", "MainActivityState.adapterTypeStack.Return: "+i);
+
 
             return adapterTypeStack.size() > 1 ? adapterTypeStack.get(adapterTypeStack.size()-1) : 0;
 
@@ -87,6 +96,8 @@ public class MainActivityState {
 
     public void setAdapterType(int adapterType) {
         if (getAdapterType() != adapterType){
+            Log.d("@@@", "MainActivityState.setAdapterType: "+adapterType);
+
             adapterTypeStack.add(adapterType);
         }
     }
