@@ -89,6 +89,7 @@ public class MainActivity
     private UserInfoDialog userInfoDialog;
 
     private CameraHelper mCameraHelper;
+
     private CamManager mCamManager;
 
 

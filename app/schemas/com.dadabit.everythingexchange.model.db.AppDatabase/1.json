@@ -2,66 +2,77 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "19861a1c8ea8b9ba7e9cd51969a3cc81",
+    "identityHash": "81597966e0518380eb93bbcb6d637fbb",
     "entities": [
       {
         "tableName": "things",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `description` TEXT, `category` INTEGER, `imgBitmap` BLOB, `date` INTEGER, `fireBasePath` TEXT, `imgLink` TEXT, `hashTags` TEXT, `pointerPath` TEXT, `status` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `category` INTEGER NOT NULL, `imgBitmap` BLOB, `date` INTEGER, `fireBasePath` TEXT, `imgLink` TEXT, `hashTags` TEXT, `pointerPath` TEXT, `status` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "description",
             "columnName": "description",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "category",
             "columnName": "category",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "imgBitmap",
             "columnName": "imgBitmap",
-            "affinity": "BLOB"
+            "affinity": "BLOB",
+            "notNull": false
           },
           {
             "fieldPath": "date",
             "columnName": "date",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "fireBasePath",
             "columnName": "fireBasePath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "imgLink",
             "columnName": "imgLink",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "hashTags",
             "columnName": "hashTags",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "pointerPath",
             "columnName": "pointerPath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "status",
             "columnName": "status",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -75,102 +86,121 @@
       },
       {
         "tableName": "exchanges",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fireBaseId` TEXT, `chatPath` TEXT, `thing1_path` TEXT, `thing1_name` TEXT, `thing1_img` TEXT, `thing1_ownerId` TEXT, `thing1_ownerName` TEXT, `thing1_ownerImg` TEXT, `thing2_path` TEXT, `thing2_name` TEXT, `thing2_img` TEXT, `thing2_ownerId` TEXT, `thing2_ownerName` TEXT, `thing2_ownerImg` TEXT, `location` TEXT, `startDate` INTEGER, `endDate` INTEGER, `status` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fireBaseId` TEXT, `chatPath` TEXT, `thing1_path` TEXT, `thing1_name` TEXT, `thing1_img` TEXT, `thing1_ownerId` TEXT, `thing1_ownerName` TEXT, `thing1_ownerImg` TEXT, `thing2_path` TEXT, `thing2_name` TEXT, `thing2_img` TEXT, `thing2_ownerId` TEXT, `thing2_ownerName` TEXT, `thing2_ownerImg` TEXT, `location` TEXT, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `status` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "fireBaseId",
             "columnName": "fireBaseId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "chatPath",
             "columnName": "chatPath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_path",
             "columnName": "thing1_path",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_name",
             "columnName": "thing1_name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_img",
             "columnName": "thing1_img",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_ownerId",
             "columnName": "thing1_ownerId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_ownerName",
             "columnName": "thing1_ownerName",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing1_ownerImg",
             "columnName": "thing1_ownerImg",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_path",
             "columnName": "thing2_path",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_name",
             "columnName": "thing2_name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_img",
             "columnName": "thing2_img",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_ownerId",
             "columnName": "thing2_ownerId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_ownerName",
             "columnName": "thing2_ownerName",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "thing2_ownerImg",
             "columnName": "thing2_ownerImg",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "location",
             "columnName": "location",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "startDate",
             "columnName": "startDate",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "endDate",
             "columnName": "endDate",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "status",
             "columnName": "status",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -184,22 +214,25 @@
       },
       {
         "tableName": "exchange_path",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `exchangeId` INTEGER, `exchangePath` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `exchangeId` INTEGER NOT NULL, `exchangePath` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "exchangeId",
             "columnName": "exchangeId",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "exchangePath",
             "columnName": "exchangePath",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -214,7 +247,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"19861a1c8ea8b9ba7e9cd51969a3cc81\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"81597966e0518380eb93bbcb6d637fbb\")"
     ]
   }
 }
