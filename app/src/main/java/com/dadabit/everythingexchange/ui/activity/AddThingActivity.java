@@ -2,6 +2,7 @@ package com.dadabit.everythingexchange.ui.activity;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -335,6 +336,11 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
 
     @Override
     public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
         return this;
     }
 }

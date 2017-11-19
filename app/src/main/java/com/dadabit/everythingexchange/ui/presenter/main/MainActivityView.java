@@ -19,11 +19,14 @@ import android.widget.TextView;
 
 import com.dadabit.everythingexchange.ui.adapter.FireBaseThingsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.MvpView;
+import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
 
 public interface MainActivityView extends MvpView {
 
 
     //    ====================GETTERS========================
+
+    MainActivityViewModel getViewModel();
 
     BottomNavigationView getNavigationView();
 
@@ -88,5 +91,7 @@ public interface MainActivityView extends MvpView {
     void showUserInfoDialog(String name, String imgUrl);
 
     void vibrate(int duration);
+
+    void setupToolbar();
 }
 

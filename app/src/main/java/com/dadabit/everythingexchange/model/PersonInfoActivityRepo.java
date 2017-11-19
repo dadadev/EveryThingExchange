@@ -21,11 +21,11 @@ import javax.inject.Inject;
 
 public class PersonInfoActivityRepo {
 
-    public static final int STATE_PERSON_THINGS = 0;
-    public static final int STATE_SINGLE_THING = 1;
-    public static final int STATE_MY_THINGS_SHOWN = 2;
-    public static final int STATE_MY_THING_CHOSEN = 3;
-    public static final int STATE_WAITING_NEW_THING = 4;
+//    public static final int STATE_PERSON_THINGS = 0;
+//    public static final int STATE_SINGLE_THING = 1;
+//    public static final int STATE_MY_THINGS_SHOWN = 2;
+//    public static final int STATE_MY_THING_CHOSEN = 3;
+//    public static final int STATE_WAITING_NEW_THING = 4;
 
 
     @Inject Repository mainRepository;
@@ -183,28 +183,6 @@ public class PersonInfoActivityRepo {
     public void sendOffer() {
 
 
-        if (things.get(chosenThing) != null
-                && availableThings.get(chosenMyThing) != null){
-
-            mainRepository
-                    .getFireBaseManager()
-                    .sendOffer(
-                            String.format("users/%s/offers/%s/%s/%s",
-                                    things.get(chosenThing).getUserUid(),
-                                    things.get(chosenThing).getFireBaseID(),
-                                    mainRepository.getUser().getUid(),
-                                    Utils.fireBasePathToId(availableThings.get(chosenMyThing).getFireBasePath())),
-                            new FireBaseOfferItem(
-                                    availableThings.get(chosenMyThing).getFireBasePath(),
-                                    System.currentTimeMillis()));
-
-            mainRepository.getFireBaseManager().sendNotification(
-                    mainRepository.getAppContext()
-                            .getString(R.string.notification_offer_msg, things.get(chosenThing).getItemName()),
-                    mainRepository.getUser().getUid(),
-                    things.get(chosenThing).getUserUid());
-
-        }
 
     }
 }

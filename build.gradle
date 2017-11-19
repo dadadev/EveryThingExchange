@@ -25,6 +25,9 @@ ext.dagget_version = "2.11"
 ext.retrofit_version = "2.3.0"
 ext.converter_gson_version = "2.3.0"
 
+ext.glide_version = "3.7.0"
+ext.circleimageview_version = "2.2.0"
+
 allprojects {
     repositories {
         jcenter()

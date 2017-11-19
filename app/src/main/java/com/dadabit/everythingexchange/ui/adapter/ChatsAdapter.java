@@ -37,29 +37,29 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ViewHolder>{
         } else {
             Log.d("@@@", "ChatsAdapter.setChatItems.change");
 
-//            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-//                @Override
-//                public int getOldListSize() {
-//                    return chatItems.size();
-//                }
-//
-//                @Override
-//                public int getNewListSize() {
-//                    return newChatItems.size();
-//                }
-//
-//                @Override
-//                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-//                    return chatItems.get(oldItemPosition).getExchangeId() ==
-//                            newChatItems.get(newItemPosition).getExchangeId();
-//                }
-//
-//                @Override
-//                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-//                    return chatItems.get(oldItemPosition).getLastUpdate() ==
-//                            newChatItems.get(newItemPosition).getLastUpdate();
-//                }
-//            });
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return chatItems.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newChatItems.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return chatItems.get(oldItemPosition).getExchangeId() ==
+                            newChatItems.get(newItemPosition).getExchangeId();
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    return chatItems.get(oldItemPosition).getLastUpdate() ==
+                            newChatItems.get(newItemPosition).getLastUpdate();
+                }
+            });
 
             chatItems = newChatItems;
 //            result.dispatchUpdatesTo(this);
@@ -72,10 +72,8 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ViewHolder>{
 
 
     public ChatsAdapter(Context context,
-                        List<ChatItem> chatItems,
                         @Nullable ChatsClickCallback mCallback) {
         this.context = context;
-        this.chatItems = chatItems;
         this.mCallback = mCallback;
     }
 

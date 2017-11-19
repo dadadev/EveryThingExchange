@@ -1,6 +1,7 @@
 package com.dadabit.everythingexchange.ui.activity;
 
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -170,6 +171,11 @@ public class AuthActivity extends AppCompatActivity implements
 
     @Override
     public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
         return this;
     }
 

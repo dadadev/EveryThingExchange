@@ -3,6 +3,10 @@ package com.dadabit.everythingexchange;
 import android.app.Application;
 import android.util.Log;
 
+import com.dadabit.everythingexchange.di.AppComponent;
+import com.dadabit.everythingexchange.di.AppModule;
+import com.dadabit.everythingexchange.di.DaggerAppComponent;
+
 
 public class App extends Application {
 

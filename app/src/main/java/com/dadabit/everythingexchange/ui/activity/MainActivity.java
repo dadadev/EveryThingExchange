@@ -1,5 +1,7 @@
 package com.dadabit.everythingexchange.ui.activity;
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -36,6 +38,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.ui.adapter.CategoriesAdapter;
 import com.dadabit.everythingexchange.ui.adapter.ChatsAdapter;
@@ -44,10 +47,14 @@ import com.dadabit.everythingexchange.ui.adapter.MyThingsAdapter;
 import com.dadabit.everythingexchange.ui.fragment.UserInfoDialog;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityView;
+import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
+import com.dadabit.everythingexchange.ui.viewmodel.ViewModelFactory;
 import com.dadabit.everythingexchange.utils.CamManager;
 import com.dadabit.everythingexchange.utils.CameraHelper;
 import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.Utils;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,18 +99,19 @@ public class MainActivity
 
     private CamManager mCamManager;
 
+    @Inject ViewModelFactory factory;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("@@@", "MainActivity.onCreate");
         super.onCreate(savedInstanceState);
+
+        App.getComponent().inject(this);
+
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-
-        mAppBarLayout.setExpanded(false, false);
-
-        setupToolbar();
 
         if (mPresenter == null){
             mPresenter = new MainActivityPresenter();
@@ -111,38 +119,8 @@ public class MainActivity
 
         mPresenter.attachView(this);
 
-
     }
 
-    private void setupToolbar() {
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_vector);
-
-            mMenuDrawable = (AnimatedVectorDrawable) ContextCompat.getDrawable(
-                    this,
-                    R.drawable.ic_menu_animatable);
-            mBackDrawable = (AnimatedVectorDrawable) ContextCompat.getDrawable(
-                    this,
-                    R.drawable.ic_back_animatable);
-
-        }
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        mToolbarTitle.setFactory(this);
-        mToolbarTitle.setInAnimation(
-                AnimationUtils.loadAnimation(this, R.anim.slide_in_left));
-        mToolbarTitle.setOutAnimation(
-                AnimationUtils.loadAnimation(this, R.anim.slide_out_right));
-
-
-    }
 
     @Override
     protected void onResume() {
@@ -220,6 +198,18 @@ public class MainActivity
     @Override
     public Context getActivityContext() {
         return this;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
+        return this;
+    }
+
+    @Override
+    public MainActivityViewModel getViewModel() {
+        return ViewModelProviders
+                .of(this, factory)
+                .get(MainActivityViewModel.class);
     }
 
     @Override
@@ -694,6 +684,8 @@ public class MainActivity
 
     }
 
+
+
     @Override
     public void hideCamera(Animation.AnimationListener animationListener) {
 
@@ -830,8 +822,42 @@ public class MainActivity
 
                     break;
             }
+        }
+    }
+
+
+
+    @Override
+    public void setupToolbar() {
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_vector);
+
+            mMenuDrawable = (AnimatedVectorDrawable) ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_menu_animatable);
+            mBackDrawable = (AnimatedVectorDrawable) ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_back_animatable);
 
         }
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        mToolbarTitle.setFactory(this);
+        mToolbarTitle.setInAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.slide_in_left));
+        mToolbarTitle.setOutAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.slide_out_right));
+
+
     }
+
+
+
 }

@@ -1,7 +1,7 @@
 package com.dadabit.everythingexchange.ui.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 
 public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.ViewHolder>{
 
-    @Nullable
+    @NonNull
     private final CategoriesClickCallback mClickCallback;
 
     private List<ThingCategory> categories;
@@ -31,15 +31,20 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
 
     public CategoriesAdapter(
             Context context,
-            List<ThingCategory> categories,
-            @Nullable CategoriesClickCallback mClickCallback) {
+            @NonNull CategoriesClickCallback mClickCallback) {
         Log.d("@@@", "CategoriesAdapter.create");
         this.context = context;
         this.mClickCallback = mClickCallback;
-        this.categories = categories;
     }
 
 
+    public void setCategories(List<ThingCategory> categories) {
+        this.categories = categories;
+
+//        notifyItemRangeInserted(0, categories.size());
+
+        notifyDataSetChanged();
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -91,7 +96,6 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
 
         @Override
         public void onClick(View v) {
-            assert mClickCallback != null;
             mClickCallback.onClick(getLayoutPosition());
         }
     }

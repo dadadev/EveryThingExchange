@@ -2,8 +2,10 @@ package com.dadabit.everythingexchange.ui.adapter;
 
 
 import android.content.Context;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dadabit.everythingexchange.R;
+import com.dadabit.everythingexchange.model.vo.ChatItem;
 import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
 
 import java.util.ArrayList;
@@ -43,6 +46,51 @@ public class PersonThingsAdapter extends RecyclerView.Adapter<PersonThingsAdapte
         things.add(newThing);
 
         notifyItemInserted(getItemCount()-1);
+
+    }
+
+
+
+    public void setThings(final List<FireBaseThingItem> newThings){
+        Log.d("@@@", "PersonThingsAdapter.setItems");
+        if (things == null){
+            things = newThings;
+            notifyItemRangeInserted(0, newThings.size());
+        } else {
+            Log.d("@@@", "PersonThingsAdapter.setItems.change");
+
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return things.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newThings.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return things.get(oldItemPosition).getFireBaseID()
+                            .equals(newThings.get(newItemPosition).getFireBaseID());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    return things.get(oldItemPosition).getDate() ==
+                            newThings.get(newItemPosition).getDate();
+                }
+            });
+
+            things = newThings;
+
+            result.dispatchUpdatesTo(this);
+
+            notifyDataSetChanged();
+
+
+        }
 
     }
 

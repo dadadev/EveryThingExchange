@@ -81,7 +81,7 @@ public class SingleChatActivityRepo {
 
         if (currentExchange == null){
             currentExchange = mainRepository.getExchangeById(
-                    mainRepository.getState().getChosenChat());
+                    mainRepository.getChosenChat());
         }
         return currentExchange;
 

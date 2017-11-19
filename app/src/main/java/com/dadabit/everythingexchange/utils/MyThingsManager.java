@@ -1,6 +1,8 @@
 package com.dadabit.everythingexchange.utils;
 
 
+import android.arch.lifecycle.MutableLiveData;
+import android.os.Looper;
 import android.util.Log;
 
 import com.dadabit.everythingexchange.model.db.entity.ExchangeEntity;
@@ -11,11 +13,15 @@ import com.dadabit.everythingexchange.model.vo.OfferItem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Handler;
 
 public class MyThingsManager {
 
+    private MutableLiveData<List<MyThingsAdapterItem>> myThingAdapterItems;
+
     private List<ThingEntity> myThings;
-    private List<MyThingsAdapterItem> myThingsAdapterItems;
+
+//    private List<MyThingsAdapterItem> myThingsAdapterItems;
     private HashMap<String, List<OfferItem>> offersByThing;
 
     private MyThingsChangeObserver myThingsChangeObserver;
@@ -24,10 +30,19 @@ public class MyThingsManager {
 
     public void init(List<ThingEntity> myThings, List<ExchangeEntity> exchanges){
         Log.d("@@@", "MyThingsManager.init");
-        myThingsAdapterItems = new ArrayList<>();
-        offersByThing = new HashMap<>();
+
         this.myThings = myThings;
-//        Collections.reverse(this.myThings);
+
+        offersByThing = new HashMap<>();
+
+        initAdapterItems(exchanges);
+
+    }
+
+    private void initAdapterItems(List<ExchangeEntity> exchanges) {
+
+        myThingAdapterItems = new MutableLiveData<>();
+        List<MyThingsAdapterItem> adapterItems = new ArrayList<>();
 
         for (ThingEntity thing : myThings) {
 
@@ -55,12 +70,16 @@ public class MyThingsManager {
                         break;
                     }
                 }
-
             }
 
-            myThingsAdapterItems.add(item);
-
+            adapterItems.add(item);
         }
+
+
+        myThingAdapterItems.postValue(adapterItems);
+
+
+
     }
 
     public void addNewOffer(OfferItem newOffer, int chosenThingPosition) {
@@ -71,27 +90,28 @@ public class MyThingsManager {
 
         offersByThing.get(newOffer.getMainThingId()).add(newOffer);
 
-
         //update offers counter
-        for (int i = 0; i < myThingsAdapterItems.size(); i++) {
-            if (myThingsAdapterItems.get(i).getThingId().equals(newOffer.getMainThingId())){
-                myThingsAdapterItems.get(i).setOffersCounter(myThingsAdapterItems.get(i).getOffersCounter()+1);
-            }
-            if (myThingsChangeObserver != null){
-                myThingsChangeObserver.onChange(i);
-            }
-        }
 
-
-        if (offersByPersonObserver != null){
-
-            if (newOffer.getMainThingId()
-                    .equals(myThingsAdapterItems.get(chosenThingPosition).getThingId())){
-
-                offersByPersonObserver.onChange(newOffer);
-
+        if (myThingAdapterItems.getValue() != null){
+            for (int i = 0; i < myThingAdapterItems.getValue().size(); i++) {
+                if (myThingAdapterItems.getValue().get(i).getThingId()
+                        .equals(newOffer.getMainThingId()))
+                {
+                    myThingAdapterItems.getValue().get(i)
+                            .setOffersCounter(
+                                    myThingAdapterItems.getValue().get(i).getOffersCounter()+1);
+                }
             }
         }
+//        if (offersByPersonObserver != null){
+//
+//            if (newOffer.getMainThingId()
+//                    .equals(getMyThingAdapterItems().getValue().get(chosenThingPosition).getThingId())){
+//
+//                offersByPersonObserver.onChange(newOffer);
+//
+//            }
+//        }
 
     }
 //    public void updateOffers(List<OfferItem> offers, int chosenThingPosition){
@@ -141,27 +161,31 @@ public class MyThingsManager {
         ThingEntity result = null;
 
         for (int i = 0; i < myThings.size(); i++) {
-            if (myThings.get(i).getFireBasePath().equals(exchange.getThing1_path())){
+
+            if (myThings.get(i).getFireBasePath()
+                    .equals(exchange.getThing1_path())){
 
                 myThings.get(i).setStatus(status);
 
                 result = myThings.get(i);
 
-                myThingsAdapterItems.get(i).setType(status);
+                if (myThingAdapterItems.getValue() != null
+                        && myThingAdapterItems.getValue().get(i) != null){
 
-                if (status == Constants.THING_STATUS_EXCHANGING_IN_PROCESS){
+                    myThingAdapterItems.getValue().get(i).setType(status);
 
-                    myThingsAdapterItems.get(i).setExchangeImages(
-                            new String[] {
-                                    exchange.getThing1_img(),
-                                    exchange.getThing2_img()});
+                    if (status == Constants.THING_STATUS_EXCHANGING_IN_PROCESS){
 
+                        myThingAdapterItems.getValue().get(i).setExchangeImages(
+                                new String[] {
+                                        exchange.getThing1_img(),
+                                        exchange.getThing2_img()});
+
+                    }
                 }
-
-                if (myThingsChangeObserver != null){
-                    myThingsChangeObserver.onChange(i);
-                }
-
+//                if (myThingsChangeObserver != null){
+//                    myThingsChangeObserver.onChange(i);
+//                }
                 break;
             }
         }
@@ -171,27 +195,34 @@ public class MyThingsManager {
 
     public void insertThing(ThingEntity newThing){
 
-        if (newThing != null){
-            myThings.add(0, newThing);
-            myThingsAdapterItems.add(0,
-                    new MyThingsAdapterItem(
-                            newThing.getStatus(),
-                            Utils.fireBasePathToId(newThing.getFireBasePath()),
-                            newThing.getName(),
-                            newThing.getImgBitmap(),
-                            0,
-                            null));
+        if (newThing != null
+                &&  myThingAdapterItems.getValue() != null){
 
-            if (myThingsChangeObserver != null){
-                myThingsChangeObserver.onChange(-1);
-            }
+            myThings.add(0, newThing);
+
+            myThingAdapterItems.getValue()
+                    .add(0,
+                            new MyThingsAdapterItem(
+                                    newThing.getStatus(),
+                                    Utils.fireBasePathToId(newThing.getFireBasePath()),
+                                    newThing.getName(),
+                                    newThing.getImgBitmap(),
+                                    0,
+                                    null));
+
+//            if (myThingsChangeObserver != null){
+//                myThingsChangeObserver.onChange(-1);
+//            }
         }
     }
 
     public void removeThing(int position) {
 
         myThings.remove(position);
-        myThingsAdapterItems.remove(position);
+
+        if (myThingAdapterItems.getValue() != null){
+            myThingAdapterItems.getValue().remove(position);
+        }
 
         if (myThingsChangeObserver != null){
             myThingsChangeObserver.onChange(-1);
@@ -220,8 +251,11 @@ public class MyThingsManager {
 
             offersByThing.get(thingId).remove(getOfferById(offerId));
 
-            myThingsAdapterItems.get(thingPosition).setOffersCounter(
-                    offersByThing.get(thingId).size());
+
+            if (myThingAdapterItems.getValue() != null){
+                myThingAdapterItems.getValue().get(thingPosition).setOffersCounter(
+                        offersByThing.get(thingId).size());
+            }
 
         }
 
@@ -267,14 +301,14 @@ public class MyThingsManager {
         offersByPersonObserver = null;
     }
 
+    public MutableLiveData<List<MyThingsAdapterItem>> getMyThingAdapterItems() {
+        return myThingAdapterItems;
+    }
 
     public List<ThingEntity> getMyThings() {
         return myThings;
     }
 
-    public List<MyThingsAdapterItem> getMyThingsAdapterItems() {
-        return myThingsAdapterItems;
-    }
 
     public HashMap<String, List<OfferItem>> getOffersByThing() {
         return offersByThing;
@@ -288,9 +322,12 @@ public class MyThingsManager {
 
                 myThings.set(i, thingToChange);
 
-                myThingsAdapterItems.get(i).setName(thingToChange.getName());
-                myThingsAdapterItems.get(i).setImgBitmap(thingToChange.getImgBitmap());
+                if (myThingAdapterItems.getValue() != null
+                        && myThingAdapterItems.getValue().get(i) != null){
+                    myThingAdapterItems.getValue().get(i).setName(thingToChange.getName());
+                    myThingAdapterItems.getValue().get(i).setImgBitmap(thingToChange.getImgBitmap());
 
+                }
             }
         }
     }

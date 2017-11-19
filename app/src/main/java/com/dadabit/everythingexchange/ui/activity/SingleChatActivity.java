@@ -1,5 +1,6 @@
 package com.dadabit.everythingexchange.ui.activity;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -161,6 +162,11 @@ public class SingleChatActivity extends AppCompatActivity implements SingleChatA
 
     @Override
     public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
         return this;
     }
 

@@ -255,7 +255,7 @@ public class OffersActivityRepo {
                                 exchange,
                                 Constants.THING_STATUS_EXCHANGING_IN_PROCESS));
 
-        mainRepository.getState().setChosenChatId(exchange.getId());
+        mainRepository.setChosenChat(exchange.getId());
 
         // send new exchange to fireBase
         mainRepository.getFireBaseManager()

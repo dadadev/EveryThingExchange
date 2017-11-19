@@ -86,4 +86,7 @@ public class ChatItem {
         this.lastUpdate = lastUpdate;
     }
 
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
 }

@@ -1,9 +1,11 @@
 package com.dadabit.everythingexchange.ui.presenter.main;
 
 
+import android.arch.lifecycle.Observer;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -19,25 +21,23 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
-import com.dadabit.everythingexchange.model.Repository;
-import com.dadabit.everythingexchange.model.firebase.LoadThingsCallback;
 import com.dadabit.everythingexchange.model.vo.ChatItem;
+import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
+import com.dadabit.everythingexchange.model.vo.MyThingsAdapterItem;
+import com.dadabit.everythingexchange.model.vo.ThingCategory;
 import com.dadabit.everythingexchange.ui.adapter.CategoriesAdapter;
 import com.dadabit.everythingexchange.ui.adapter.ChatsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.FireBaseThingsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.LocationsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.MyThingsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.BasePresenter;
+import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
 import com.dadabit.everythingexchange.utils.BottomNavigationViewBehavior;
 import com.dadabit.everythingexchange.utils.ChatItemsManager;
 import com.dadabit.everythingexchange.utils.Constants;
-import com.dadabit.everythingexchange.utils.MyThingsManager;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 
 public class MainActivityPresenter extends BasePresenter<MainActivityView>
@@ -46,18 +46,17 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         NavigationView.OnNavigationItemSelectedListener {
 
 
-    @Inject Repository mRepository;
-
+    private MainActivityViewModel mViewModel;
 
     private BottomNavigationViewBehavior navigationViewBehavior;
 
+    private CategoriesAdapter categoriesAdapter;
     private ChatsAdapter chatsAdapter;
     private MyThingsAdapter myThingsAdapter;
     private LocationsAdapter locationsAdapter;
 
     public MainActivityPresenter() {
         Log.d("@@@", "MainActivityPresenter.create");
-        App.getComponent().inject(this);
     }
 
 
@@ -67,21 +66,28 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         super.attachView(mainActivityView);
         Log.d("@@@", "MainActivityPresenter.attachView");
 
-        if ( mRepository.getUser() == null ) {
+        mViewModel = getView().getViewModel();
+
+        if ( mViewModel.getUser() == null ) {
 
             getView().startAuthActivity(Constants.AUTH_LOG_IN);
 
         } else {
 
-            initToolbar();
-
-            initSideBar();
-
-            initNavigationView();
-
-            setRecyclerAdapter(mRepository.getState().getAdapterType());
+            setupViews();
 
         }
+    }
+
+    private void setupViews() {
+
+        initToolbar();
+
+        initSideBar();
+
+        initNavigationView();
+
+        setRecyclerAdapter(mViewModel.getState().getAdapterType());
     }
 
 
@@ -92,13 +98,13 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
             case R.id.bottomMenu_categories:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: bottomMenu_categories");
 
-                if (mRepository.getState().getAdapterType() != Constants.ADAPTER_TYPE_CATEGORIES){
+                if (mViewModel.getState().getAdapterType() != Constants.ADAPTER_TYPE_CATEGORIES){
                     Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: bottomMenu_categories. show");
 
 
                     getView().vibrate(10);
 
-                    showCategories(mRepository.getState().getAdapterType());
+                    showCategories(mViewModel.getState().getAdapterType());
 
                 }
 
@@ -108,11 +114,11 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
             case R.id.bottomMenu_myThings:
                 Log.d("@@@", "MainActivityPresenter.onNavigationItemSelected: bottomMenu_myThings");
 
-                if (mRepository.getState().getAdapterType() != Constants.ADAPTER_TYPE_MY_THINGS){
+                if (mViewModel.getState().getAdapterType() != Constants.ADAPTER_TYPE_MY_THINGS){
 
                     getView().vibrate(10);
 
-                    showMyThings(mRepository.getState().getAdapterType());
+                    showMyThings(mViewModel.getState().getAdapterType());
 
                 }
 
@@ -139,8 +145,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     public void run() {
                         if (isViewAttached()){
                             getView().showUserInfoDialog(
-                                    mRepository.getUser().getName(),
-                                    mRepository.getUser().getImgUrl());
+                                    mViewModel.getUser().getName(),
+                                    mViewModel.getUser().getImgUrl());
                         }
                     }
                 }, 300);
@@ -154,7 +160,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().getDrawerLayout().closeDrawer(GravityCompat.START);
 
-                showLocations(mRepository.getState().getAdapterType());
+                showLocations(mViewModel.getState().getAdapterType());
 
                 break;
             case R.id.side_bar_sign_out:
@@ -175,7 +181,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().showCamera();
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_CAMERA);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_CAMERA);
 
         getView().vibrate(20);
 
@@ -183,7 +189,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().animateMenuIcon(true);
 
-        getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_addNewThing));
+        mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_addNewThing));
 
         getView().animateRecyclerOut(
                 Constants.DIRECTION_RIGHT,
@@ -215,11 +221,11 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     private CategoriesAdapter.CategoriesClickCallback categoriesClickCallback = new CategoriesAdapter.CategoriesClickCallback() {
         @Override
         public void onClick(int position) {
-            Log.d("@@@", "MainActivityPresenter.CategoriesAdapter.onClick: "+mRepository.getCategories().get(position).getName());
+//            Log.d("@@@", "MainActivityPresenter.CategoriesAdapter.onClick: "+mRepository.getCategories().get(position).getName());
 
             getView().vibrate(10);
 
-            mRepository.getState().setChosenCategory(position);
+            mViewModel.getState().setChosenCategory(position);
 
             getView().getAppBarLayout().setExpanded(false,true);
 
@@ -255,7 +261,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             getView().vibrate(10);
 
-            mRepository.getState().setChosenFireBaseThing(position);
+            mViewModel.getState().setChosenFireBaseThing(position);
 
             getView().startSingleThingActivity(position);
         }
@@ -271,14 +277,15 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             if (type == Constants.THING_STATUS_EXCHANGING_IN_PROCESS){
 
-                mRepository.getState().setChosenChatId(mRepository.getExchangeIdByThing(thingId));
+                mViewModel.setChosenChatId(thingId);
+//                mViewModel.getState().setChosenChatId(mRepository.getExchangeIdByThing(thingId));
 
                 getView().startSingleChat(position, Constants.ADAPTER_TYPE_MY_THINGS);
 
 
             } else {
 
-                mRepository.getState().setChosenMyThing(position);
+                mViewModel.getState().setChosenMyThing(position);
 
                 getView().startOffersActivity(position);
             }
@@ -292,7 +299,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             getView().vibrate(10);
 
-            mRepository.getState().setChosenChatId(id);
+            mViewModel.setChosenChatId(id);
             getView().startSingleChat(position, Constants.ADAPTER_TYPE_CHATS);
         }
     };
@@ -305,7 +312,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                     getView().vibrate(10);
 
-                    mRepository.getUser().setLocation(location);
+                    mViewModel.getUser().setLocation(location);
 
                     onBackButtonPressed();
 
@@ -315,7 +322,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 public void onHomeLocationChanged(String location) {
                     Log.d("@@@", "MainActivityPresenter.onHomeLocationChanged: "+location);
 
-                    mRepository.getSharedPreferences().setHomeLocation(location);
+                    mViewModel.setHomeLocation(location);
 
                     getView().getSideBar()
                             .getMenu()
@@ -331,33 +338,33 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
 
 
-    private MyThingsManager.MyThingsChangeObserver myThingsChangeObserver = new MyThingsManager.MyThingsChangeObserver() {
-        @Override
-        public void onChange(final int position) {
-            Log.d("@@@", "MainActivityPresenter.MyThingsAdapter.onChange: "+ position);
-
-            if (isViewAttached()
-                    && myThingsAdapter != null){
-
-
-                getUiHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if (position == -1){
-
-                            myThingsAdapter.notifyDataSetChanged();
-                        } else {
-
-                            myThingsAdapter.notifyItemChanged(position);
-                        }
-                    }
-                });
-
-
-            }
-        }
-    };
+//    private MyThingsManager.MyThingsChangeObserver myThingsChangeObserver = new MyThingsManager.MyThingsChangeObserver() {
+//        @Override
+//        public void onChange(final int position) {
+//            Log.d("@@@", "MainActivityPresenter.MyThingsAdapter.onChange: "+ position);
+//
+//            if (isViewAttached()
+//                    && myThingsAdapter != null){
+//
+//
+//                getUiHandler().post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        if (position == -1){
+//
+//                            myThingsAdapter.notifyDataSetChanged();
+//                        } else {
+//
+//                            myThingsAdapter.notifyItemChanged(position);
+//                        }
+//                    }
+//                });
+//
+//
+//            }
+//        }
+//    };
 
 
     private ChatItemsManager.ChatsAdapterCallback chatsAdapterChangeListener =
@@ -378,51 +385,81 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     private void initToolbar() {
         Log.d("@@@", "MainActivityPresenter.init.start");
 
-        switch (mRepository.getState().getAdapterType()){
+        getView().setupToolbar();
+
+        mViewModel.getTitle()
+                .observe(
+                        getView().getLifecycleOwner(),
+                        new Observer<String>() {
+                            @Override
+                            public void onChanged(@Nullable String newTitle) {
+                                getView().animateTitleChange(newTitle);
+                            }
+                        });
+
+        switch (mViewModel.getState().getAdapterType()){
 
             case Constants.ADAPTER_TYPE_CATEGORIES:
 
-                getView().animateTitleChange(
-                        mRepository.getUser().getLocation());
+                mViewModel.setTitle(mViewModel.getUser().getLocation());
 
                 getView().getAppBarLayout().setExpanded(false,false);
+
+                getView().getCollapsingLayout().setVisibility(View.GONE);
 
                 break;
 
             case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
 
+                getView().getCollapsingLayout().setVisibility(View.VISIBLE);
+
                 getView().animateMenuIcon(true);
 
-                getView().animateTitleChange(
-                        mRepository
-                                .getCategories()
-                                .get(mRepository.getState().getChosenCategory()).getName());
+                if (mViewModel.getCategories().getValue() != null){
 
-                getView().getCollapsingBackground()
-                        .setImageBitmap(
-                                mRepository
-                                        .getBackgroundImages()
-                                        .get(mRepository.getState().getChosenCategory()));
+                    mViewModel.setTitle(
+                            mViewModel
+                                    .getCategories()
+                                    .getValue()
+                                    .get(mViewModel.getState()
+                                            .getChosenCategory())
+                                    .getName()
+                    );
+
+
+                    getView().getCollapsingBackground()
+                            .setImageBitmap(
+                                    mViewModel
+                                            .getCategories()
+                                            .getValue()
+                                            .get(mViewModel.getState()
+                                                    .getChosenCategory())
+                                            .getImgBitmap());
+
+                }
 
                 break;
 
             case Constants.ADAPTER_TYPE_MY_THINGS:
 
-                getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_my_things));
+                mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_my_things));
+
                 getView().animateMenuIcon(true);
 
                 break;
 
             case Constants.ADAPTER_TYPE_CHATS:
 
-                getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_chats));
+                mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_chats));
+
                 getView().animateMenuIcon(true);
 
                 break;
 
             case Constants.ADAPTER_TYPE_LOCATION:
 
-                getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_locations));
+                mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_locations));
+
                 getView().animateMenuIcon(true);
 
                 break;
@@ -435,7 +472,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().vibrate(10);
 
-                        showChats(mRepository.getState().getAdapterType());
+                        showChats(mViewModel.getState().getAdapterType());
                     }
                 });
 
@@ -443,7 +480,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mRepository.getState().getAdapterType()
+                        if (mViewModel.getState().getAdapterType()
                                 == Constants.ADAPTER_TYPE_CATEGORIES){
 
                             getView().vibrate(10);
@@ -464,16 +501,16 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         View navHeader = getView().getSideBar().getHeaderView(0);
 
         Glide.with(getView().getActivityContext())
-                .load(mRepository.getUser().getImgUrl())
+                .load(mViewModel.getUser().getImgUrl())
                 .thumbnail(0.5f)
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into((ImageView) navHeader.findViewById(R.id.side_bar_imageView));
 
         menu.findItem(R.id.side_bar_name).setTitle(
-                mRepository.getUser().getName());
+                mViewModel.getUser().getName());
         menu.findItem(R.id.side_bar_location).setTitle(
-                mRepository.getSharedPreferences().getHomeLocation());
+                mViewModel.getHomeLocation());
 
 
     }
@@ -493,8 +530,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                 .setOnNavigationItemSelectedListener(this);
 
 
-        if (mRepository.getState().getBottomNavigation() == Constants.IS_HIDDEN
-                && mRepository.getState().getAdapterType() == Constants.ADAPTER_TYPE_FIREBASE_THINGS){
+        if (mViewModel.getState().getBottomNavigation() == Constants.IS_HIDDEN
+                && mViewModel.getState().getAdapterType() == Constants.ADAPTER_TYPE_FIREBASE_THINGS){
 
             getView().getNavigationView().setVisibility(View.INVISIBLE);
 
@@ -508,9 +545,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().animateMenuIcon(false);
 
-        mRepository.getState().setAppBarLayout(Constants.IS_HIDDEN);
+        mViewModel.getState().setAppBarLayout(Constants.IS_HIDDEN);
 
-        getView().animateTitleChange(mRepository.getUser().getLocation());
+        mViewModel.setTitle(mViewModel.getUser().getLocation());
 
         switch (previousAdapterType){
 
@@ -630,7 +667,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         }
 
-        if (mRepository.getState().getAdapterType() == Constants.ADAPTER_TYPE_CATEGORIES){
+        if (mViewModel.getState().getAdapterType() == Constants.ADAPTER_TYPE_CATEGORIES){
 
             getView().getNavigationView().setSelectedItemId(R.id.bottomMenu_categories);
 
@@ -642,9 +679,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     private void showMyThings(int previousAdapterType) {
 
-
-        getView().animateTitleChange(
-                getView().getActivityContext().getString(R.string.title_my_things));
+        mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_my_things));
 
         switch (previousAdapterType){
 
@@ -779,7 +814,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     private void showChats(int previousAdapterType) {
 
-        getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_chats));
+        mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_chats));
 
         switch (previousAdapterType){
 
@@ -896,7 +931,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     private void showLocations(int previousAdapterType) {
 
 
-        getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_locations));
+        mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_locations));
 
         switch (previousAdapterType){
 
@@ -1013,7 +1048,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     private void setRecyclerAdapter(int type){
 
-
         switch (type){
 
             case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
@@ -1051,6 +1085,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 break;
         }
+
+
     }
 
     private void setCameraView() {
@@ -1062,98 +1098,173 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     private void setFireBaseThingsAdapter() {
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_FIREBASE_THINGS);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_FIREBASE_THINGS);
 
-        getView().animateTitleChange(
-                mRepository.getCategories()
-                        .get(mRepository.getState().getChosenCategory()).getName());
+        getView().getCollapsingLayout().setVisibility(View.VISIBLE);
 
-        getView().getCollapsingBackground()
-                .setImageBitmap(mRepository.getBackgroundImages()
-                        .get(mRepository.getState().getChosenCategory()));
+        getView().getAppBarLayout()
+                .setExpanded(false, false);
 
+        if (mViewModel.getCategories().getValue() != null){
+
+            mViewModel.setTitle(
+                    mViewModel.getCategories()
+                            .getValue()
+                            .get(mViewModel.getState().getChosenCategory())
+                            .getName());
+
+            getView().getCollapsingBackground()
+                    .setImageBitmap(
+                            mViewModel.getCategories()
+                                    .getValue()
+                                    .get(mViewModel.getState().getChosenCategory())
+                                    .getImgBitmap());
+        }
 
         getView().getCollapsingBackground().setVisibility(View.VISIBLE);
 
         getView().getProgressBar().setVisibility(View.VISIBLE);
 
-        mRepository.loadFireBaseThings(
-                new LoadThingsCallback() {
+        mViewModel.getThingItems().observe(
+                getView().getLifecycleOwner(),
+                new Observer<List<FireBaseThingItem>>() {
                     @Override
-                    public void onLoaded(final boolean isDataExist) {
+                    public void onChanged(@Nullable List<FireBaseThingItem> fireBaseThingItems) {
+                        getView().getProgressBar().setVisibility(View.GONE);
 
-                        if (isViewAttached() &&
-                                mRepository.getState().getAdapterType() ==
+                        if (fireBaseThingItems != null
+                                && mViewModel.getState().getAdapterType() ==
                                         Constants.ADAPTER_TYPE_FIREBASE_THINGS){
 
-                            getUiHandler().post(new Runnable() {
-                                @Override
-                                public void run() {
+                            getView().getRecyclerView().setLayoutManager(
+                                    new LinearLayoutManager(
+                                            getView().getActivityContext(),
+                                            LinearLayoutManager.VERTICAL,false));
 
-                                    getView().getProgressBar().setVisibility(View.GONE);
+                            getView().getRecyclerView().setAdapter(
+                                    new FireBaseThingsAdapter(
+                                            getView().getActivityContext(),
+                                            fireBaseThingItems,
+                                            fireBaseThingsClickCallback));
 
-                                    if (isDataExist){
+                            getView().animateRecyclerIn(
+                                    Constants.DIRECTION_DOWN,null);
 
-                                        getView().getRecyclerView().setLayoutManager(
-                                                new LinearLayoutManager(
-                                                        getView().getActivityContext(),
-                                                        LinearLayoutManager.VERTICAL,false));
+                            getView().getAppBarLayout()
+                                    .setExpanded(true, true);
 
-                                        getView().getRecyclerView().setAdapter(
-                                                new FireBaseThingsAdapter(
-                                                        getView().getActivityContext(),
-                                                        mRepository.getFireBaseItems(),
-                                                        fireBaseThingsClickCallback));
+                            mViewModel.getState()
+                                    .setAppBarLayout(Constants.IS_SHOWN);
+                        } else {
 
-                                        getView().animateRecyclerIn(
-                                                Constants.DIRECTION_DOWN,null);
-
-                                        getView().getAppBarLayout()
-                                                .setExpanded(true, true);
-
-                                        mRepository.getState()
-                                                .setAppBarLayout(Constants.IS_SHOWN);
-                                    } else {
-
-                                        getView().showToast("LOADING ERROR");
-                                    }
-                                }
-                            });
+                            getView().showToast("LOADING ERROR");
                         }
+
                     }
-                });
+                }
+        );
+
+        mViewModel.loadFireBaseThings();
+
+//        mRepository.loadFireBaseThings(
+//                new LoadThingsCallback() {
+//                    @Override
+//                    public void onLoaded(final boolean isDataExist) {
+//
+//                        if (isViewAttached() &&
+//                                mRepository.getState().getAdapterType() ==
+//                                        Constants.ADAPTER_TYPE_FIREBASE_THINGS){
+//
+//                            getUiHandler().post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//
+//
+//                                    if (isDataExist){
+//
+//                                        getView().getRecyclerView().setLayoutManager(
+//                                                new LinearLayoutManager(
+//                                                        getView().getActivityContext(),
+//                                                        LinearLayoutManager.VERTICAL,false));
+//
+//                                        getView().getRecyclerView().setAdapter(
+//                                                new FireBaseThingsAdapter(
+//                                                        getView().getActivityContext(),
+//                                                        mRepository.getFireBaseItems(),
+//                                                        fireBaseThingsClickCallback));
+//
+//                                        getView().animateRecyclerIn(
+//                                                Constants.DIRECTION_DOWN,null);
+//
+//                                        getView().getAppBarLayout()
+//                                                .setExpanded(true, true);
+//
+//                                        mRepository.getState()
+//                                                .setAppBarLayout(Constants.IS_SHOWN);
+//                                    } else {
+//
+//                                        getView().showToast("LOADING ERROR");
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
 
 
     }
 
     private void setCategoriesAdapter() {
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_CATEGORIES);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_CATEGORIES);
 
         getView().getAppBarLayout().setExpanded(false, true);
 
         getView().getRecyclerView().setVisibility(View.VISIBLE);
 
+
         getView().getRecyclerView().setLayoutManager(
                 new GridLayoutManager(getView().getActivityContext(), 2));
 
-        getView().getRecyclerView().setAdapter(new CategoriesAdapter(
-                getView().getActivityContext(),
-                mRepository.getCategories(),
-                categoriesClickCallback));
+        getView().getRecyclerView()
+                .setAdapter(
+                        categoriesAdapter = new CategoriesAdapter(
+                                getView().getActivityContext(),
+                                categoriesClickCallback));
 
-        if (navigationViewBehavior != null && navigationViewBehavior.isDown){
+        Log.d("@@@", "MAIN_PRESENTER.setCategoriesAdapter.observe");
+
+        mViewModel.getCategories().observe(
+                getView().getLifecycleOwner(),
+                new Observer<List<ThingCategory>>() {
+                    @Override
+                    public void onChanged(@Nullable List<ThingCategory> thingCategories) {
+
+                        Log.d("@@@", "MAIN_PRESENTER.setCategoriesAdapter.observe.onChanged");
+
+                        if (categoriesAdapter != null){
+
+                            categoriesAdapter.setCategories(thingCategories);
+
+                        }
+                    }
+                }
+        );
+
+        if (navigationViewBehavior != null
+                && navigationViewBehavior.isDown){
             navigationViewBehavior.slideUp();
         }
 
 
         getView().getCollapsingBackground().setVisibility(View.GONE);
 
+
     }
 
     private void setMyThingsAdapter() {
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_MY_THINGS);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_MY_THINGS);
 
         getView().getRecyclerView().setLayoutManager(
                 new LinearLayoutManager(
@@ -1162,23 +1273,38 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().getRecyclerView().setAdapter(
                 myThingsAdapter = new MyThingsAdapter(
-                        mRepository.getMyThingsManager().getMyThingsAdapterItems(),
                         getView().getAppContext(),
                         myThingsClickCallback));
 
-        mRepository.getMyThingsManager().attachMyThingsChangeObserver(myThingsChangeObserver);
+        mViewModel.getMyThings().observe(
+                getView().getLifecycleOwner(),
+                new Observer<List<MyThingsAdapterItem>>() {
+                    @Override
+                    public void onChanged(@Nullable List<MyThingsAdapterItem> myThingsAdapterItems) {
 
-        getView().animateRecyclerIn(Constants.DIRECTION_LEFT, null);
-        getView().getAppBarLayout().setExpanded(false, true);
+                        if (myThingsAdapter != null
+                                && mViewModel.getState().getAdapterType()
+                                == Constants.ADAPTER_TYPE_MY_THINGS){
+
+                            myThingsAdapter.setItems(myThingsAdapterItems);
+
+                            getView().animateRecyclerIn(
+                                    Constants.DIRECTION_LEFT, null);
+                            getView().getAppBarLayout()
+                                    .setExpanded(false, true);
+                            getView().getCollapsingBackground()
+                                    .setVisibility(View.GONE);
+                        }
 
 
-        getView().getCollapsingBackground().setVisibility(View.GONE);
-
+                    }
+                }
+        );
     }
 
     private void setChatsAdapter() {
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_CHATS);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_CHATS);
 
         getView().getRecyclerView().setLayoutManager(
                 new LinearLayoutManager(getView().getActivityContext(),
@@ -1187,13 +1313,12 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         getView().getRecyclerView().setAdapter(
                 chatsAdapter = new ChatsAdapter(
                         getView().getAppContext(),
-                        mRepository.getChatItemsManager().getChatItems(),
                         chatsClickCallback));
 
         getView().animateRecyclerIn(Constants.DIRECTION_DOWN, null);
         getView().getAppBarLayout().setExpanded(false, true);
 
-        mRepository.getChatItemsManager().attachChatsAdapterListener(chatsAdapterChangeListener);
+//        mRepository.getChatItemsManager().attachChatsAdapterListener(chatsAdapterChangeListener);
 
 
         getView().getCollapsingBackground().setVisibility(View.GONE);
@@ -1202,7 +1327,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
     private void setLocationsAdapter() {
 
-        mRepository.getState().setAdapterType(Constants.ADAPTER_TYPE_LOCATION);
+        mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_LOCATION);
 
         getView().getCollapsingBackground().setVisibility(View.GONE);
 
@@ -1220,27 +1345,27 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().getProgressBar().setVisibility(View.VISIBLE);
 
-        mRepository.loadLocations(new Repository.LocationsLoaderCallback() {
-            @Override
-            public void onLocationsLoad(final List<String> locations, final int homePosition) {
-                Log.d("@@@", "MainActivityPresenter.LocationsLoaderCallback.onLocationsLoad");
-
-                if (isViewAttached() && locationsAdapter != null){
-
-                    getUiHandler().post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            getView().getProgressBar().setVisibility(View.GONE);
-
-                            locationsAdapter.setLocations(locations, homePosition);
-                            getView().animateRecyclerIn(Constants.DIRECTION_DOWN, null);
-
-                        }
-                    });
-                }
-            }
-        });
+//        mRepository.loadLocations(new Repository.LocationsLoaderCallback() {
+//            @Override
+//            public void onLocationsLoad(final List<String> locations, final int homePosition) {
+//                Log.d("@@@", "MainActivityPresenter.LocationsLoaderCallback.onLocationsLoad");
+//
+//                if (isViewAttached() && locationsAdapter != null){
+//
+//                    getUiHandler().post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            getView().getProgressBar().setVisibility(View.GONE);
+//
+//                            locationsAdapter.setLocations(locations, homePosition);
+//                            getView().animateRecyclerIn(Constants.DIRECTION_DOWN, null);
+//
+//                        }
+//                    });
+//                }
+//            }
+//        });
 
     }
 
@@ -1253,59 +1378,60 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     public void onActivityResumed(){
         Log.d("@@@", "MainActivityPresenter.onActivityResumed");
 
-        mRepository.getChatItemsManager().attachNewMessagesListener(
-                new ChatItemsManager.MessagesCounterListener() {
-                    @Override
-                    public void onCounterChange(final int counter) {
-                        if (isViewAttached()){
-                            getUiHandler().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (counter > 0){
-                                        getView().getChatsCountTextView().setVisibility(View.VISIBLE);
-                                        getView().getChatsCountTextView().setText(String.valueOf(counter));
-                                    } else {
-                                        getView().getChatsCountTextView().setVisibility(View.GONE);
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-        );
+
+//        mRepository.getChatItemsManager().attachNewMessagesListener(
+//                new ChatItemsManager.MessagesCounterListener() {
+//                    @Override
+//                    public void onCounterChange(final int counter) {
+//                        if (isViewAttached()){
+//                            getUiHandler().post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    if (counter > 0){
+//                                        getView().getChatsCountTextView().setVisibility(View.VISIBLE);
+//                                        getView().getChatsCountTextView().setText(String.valueOf(counter));
+//                                    } else {
+//                                        getView().getChatsCountTextView().setVisibility(View.GONE);
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
+//        );
 
 
-        if (chatsAdapter != null){
-            mRepository.getChatItemsManager().attachChatsAdapterListener(chatsAdapterChangeListener);
-        }
-
-        if (myThingsAdapter != null){
-
-            mRepository.getMyThingsManager().attachMyThingsChangeObserver(myThingsChangeObserver);
-
-        } else if (mRepository.getState().isNewThingAdd()){
-
-            mRepository.getState().setNewThingAdd(false);
-
-            showMyThings(mRepository.getState().getAdapterType());
-        }
+//        if (chatsAdapter != null){
+//            mRepository.getChatItemsManager().attachChatsAdapterListener(chatsAdapterChangeListener);
+//        }
+//
+//        if (myThingsAdapter != null){
+//
+//            mRepository.getMyThingsManager().attachMyThingsChangeObserver(myThingsChangeObserver);
+//
+//        } else if (mRepository.getState().isNewThingAdd()){
+//
+//            mRepository.getState().setNewThingAdd(false);
+//
+//            showMyThings(mRepository.getState().getAdapterType());
+//        }
 
     }
 
     public void onActivityPaused(){
 
-        mRepository.getChatItemsManager().detachNewMessagesListener();
-        mRepository.getChatItemsManager().detachChatsAdapterListener();
+//        mRepository.getChatItemsManager().detachNewMessagesListener();
+//        mRepository.getChatItemsManager().detachChatsAdapterListener();
 
     }
 
     public Boolean exit = false;
     public void onBackButtonPressed(){
-        Log.d("@@@", "MainActivityPresenter.onBackButtonPressed\nAdapter Type: "+mRepository.getState().getAdapterType());
+        Log.d("@@@", "MainActivityPresenter.onBackButtonPressed\nAdapter Type: "+mViewModel.getState().getAdapterType());
 
         getView().vibrate(15);
 
-        switch (mRepository.getState().getAdapterType()){
+        switch (mViewModel.getState().getAdapterType()){
 
             case Constants.ADAPTER_TYPE_CATEGORIES:
 
@@ -1322,7 +1448,38 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
 
-                mRepository.getState().getPreviousAdapterType();
+                mViewModel.getState().getPreviousAdapterType();
+
+//                getView().getAppBarLayout()
+//                        .setExpanded(false,false);
+//
+//                getView().getCollapsingLayout().setVisibility(View.GONE);
+
+
+//                if (type != Constants.ADAPTER_TYPE_FIREBASE_THINGS){
+//
+//                    getUiHandler().postDelayed(
+//                            new Runnable() {
+//                                @Override
+//                                public void run() {
+//
+//                                    if (isViewAttached() &&
+//                                            mRepository.getState().getAdapterType()
+//                                                    != Constants.ADAPTER_TYPE_FIREBASE_THINGS){
+//
+//                                        getView().getAppBarLayout()
+//                                                .setExpanded(false,false);
+//
+//                                        getView().getCollapsingLayout().setVisibility(View.GONE);
+//                                    }
+//
+//
+//                                }
+//                            },
+//                            1000
+//                    );
+//
+//                }
 
                 showCategories(Constants.ADAPTER_TYPE_FIREBASE_THINGS);
 
@@ -1330,7 +1487,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             case Constants.ADAPTER_TYPE_MY_THINGS:
 
-                switch (mRepository.getState().getPreviousAdapterType()){
+                switch (mViewModel.getState().getPreviousAdapterType()){
 
                     case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
 
@@ -1393,7 +1550,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
             case Constants.ADAPTER_TYPE_CHATS:
 
-                switch (mRepository.getState().getPreviousAdapterType()){
+                switch (mViewModel.getState().getPreviousAdapterType()){
                     case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
 
                         getView().animateRecyclerOut(
@@ -1432,14 +1589,14 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         break;
                 }
-                mRepository.getChatItemsManager().detachChatsAdapterListener();
+//                mRepository.getChatItemsManager().detachChatsAdapterListener();
                 chatsAdapter = null;
                 break;
 
             case Constants.ADAPTER_TYPE_LOCATION:
 
 
-                switch (mRepository.getState().getPreviousAdapterType()){
+                switch (mViewModel.getState().getPreviousAdapterType()){
                     case Constants.ADAPTER_TYPE_FIREBASE_THINGS:
 
                         getView().animateRecyclerOut(
@@ -1511,7 +1668,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().getTextureView().setVisibility(View.GONE);
 
-                        switch (mRepository.getState().getPreviousAdapterType()){
+                        switch (mViewModel.getState().getPreviousAdapterType()){
 
                             case Constants.ADAPTER_TYPE_CATEGORIES:
 
@@ -1519,7 +1676,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                                 getView().animateMenuIcon(false);
 
-                                getView().animateTitleChange(mRepository.getUser().getLocation());
+                                mViewModel.setTitle(mViewModel.getUser().getLocation());
 
                                 setCategoriesAdapter();
 
@@ -1539,8 +1696,10 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                                 break;
                             case Constants.ADAPTER_TYPE_MY_THINGS:
 
-                                getView().animateTitleChange(
+                                mViewModel.setTitle(
                                         getView().getActivityContext().getString(R.string.title_my_things));
+
+
 
                                 setMyThingsAdapter();
 
@@ -1556,7 +1715,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                             case Constants.ADAPTER_TYPE_CHATS:
 
-                                getView().animateTitleChange(getView().getActivityContext().getString(R.string.title_chats));
+                                mViewModel.setTitle(getView().getActivityContext().getString(R.string.title_chats));
 
                                 setChatsAdapter();
 
@@ -1595,22 +1754,22 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     public void detachView() {
         Log.d("@@@", "MainActivityPresenter.detachView");
         super.detachView();
-        if (mRepository.getMyThingsManager()!= null){
-
-            mRepository.getMyThingsManager().detachMyThingsChangeObserver();
-
-        }
+//        if (mRepository.getMyThingsManager()!= null){
+//
+//            mRepository.getMyThingsManager().detachMyThingsChangeObserver();
+//
+//        }
     }
 
     public void detachListeners() {
-        if (mRepository.getFireBaseManager()!=null){
-            mRepository.getFireBaseManager().removeListeners();
-        }
+//        if (mRepository.getFireBaseManager()!=null){
+//            mRepository.getFireBaseManager().removeListeners();
+//        }
     }
 
     public boolean isNewNameAdded(String name) {
 
-        if (name.equals(mRepository.getUser().getName())){
+        if (name.equals(mViewModel.getUser().getName())){
             return false;
         } else {
             getView()
@@ -1619,7 +1778,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     .findItem(R.id.side_bar_name)
                     .setTitle(name);
 
-            mRepository.changeUserName(name);
+            mViewModel.changeUserName(name);
 
             return true;
         }
@@ -1639,7 +1798,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
             @Override
             public void run() {
 
-                mRepository.changeUserImage(bitmap);
+                mViewModel.changeUserImage(bitmap);
 
             }
         });

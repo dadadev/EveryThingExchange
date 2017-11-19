@@ -1,5 +1,6 @@
 package com.dadabit.everythingexchange.ui.activity;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -135,6 +136,11 @@ public class SingleThingActivity extends AppCompatActivity implements SingleThin
 
     @Override
     public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
         return this;
     }
 

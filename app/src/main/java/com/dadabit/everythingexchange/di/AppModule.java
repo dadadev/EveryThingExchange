@@ -1,4 +1,4 @@
-package com.dadabit.everythingexchange;
+package com.dadabit.everythingexchange.di;
 
 import android.app.Application;
 import android.arch.persistence.room.Room;
@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.dadabit.everythingexchange.model.Repository;
 import com.dadabit.everythingexchange.model.db.AppDatabase;
+import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
+import com.dadabit.everythingexchange.ui.viewmodel.ViewModelFactory;
 import com.dadabit.everythingexchange.utils.SharedPreferencesManager;
 
 import javax.inject.Singleton;
@@ -48,6 +50,13 @@ public class AppModule {
         return new Repository(db, sharedPrefs, application.getApplicationContext());
     }
 
+
+
+    @Provides
+    @Singleton
+    ViewModelFactory provideViewModelFactory(Repository repository) {
+        return new ViewModelFactory(repository);
+    }
 
 
 }

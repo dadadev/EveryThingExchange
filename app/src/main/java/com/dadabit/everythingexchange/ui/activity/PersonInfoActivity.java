@@ -1,14 +1,15 @@
 package com.dadabit.everythingexchange.ui.activity;
 
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -22,17 +23,25 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
-import com.dadabit.everythingexchange.ui.adapter.PersonThingsAdapter;
+import com.dadabit.everythingexchange.model.vo.User;
 import com.dadabit.everythingexchange.ui.presenter.personInfo.PersonInfoActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.personInfo.PersonInfoActivityView;
+import com.dadabit.everythingexchange.ui.viewmodel.PersonInfoActivityViewModel;
+import com.dadabit.everythingexchange.ui.viewmodel.ViewModelFactory;
 import com.dadabit.everythingexchange.utils.Constants;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PersonInfoActivity extends AppCompatActivity
-        implements PersonInfoActivityView, AppBarLayout.OnOffsetChangedListener{
+        implements PersonInfoActivityView,
+        AppBarLayout.OnOffsetChangedListener{
 
     public static final String ARGUMENT_FIREBASE_USER_UID = "argument_fireBaseUserUid";
 
@@ -60,25 +69,31 @@ public class PersonInfoActivity extends AppCompatActivity
 
     public static PersonInfoActivityPresenter mPresenter;
 
+    @Inject ViewModelFactory viewModelFactory;
+        private PersonInfoActivityViewModel mViewModel;
 
-    private boolean mIsAvatarShown = true;
     private int mMaxScrollSize;
+    private boolean mIsAvatarShown = true;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d("@@@", "PersonInfoActivity.onCreate");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_person_info);
+
+        App.getComponent().inject(this);
+
+        mViewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(PersonInfoActivityViewModel.class);
 
         ButterKnife.bind(this);
 
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+
+        mMaxScrollSize = mAppBarLayout.getTotalScrollRange();
+        mAppBarLayout.addOnOffsetChangedListener(this);
+
 
         if (mPresenter == null){
             mPresenter = new PersonInfoActivityPresenter(
@@ -88,10 +103,15 @@ public class PersonInfoActivity extends AppCompatActivity
         mPresenter.attachView(this);
 
 
-        mMaxScrollSize = mAppBarLayout.getTotalScrollRange();
-        mAppBarLayout.addOnOffsetChangedListener(this);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
     }
+
 
     @Override
     protected void onResume() {
@@ -209,6 +229,18 @@ public class PersonInfoActivity extends AppCompatActivity
         return myThingsRecyclerView;
     }
 
+
+    @Override
+    public PersonInfoActivityViewModel getViewModel() {
+        return mViewModel;
+    }
+
+    @Override
+    public LifecycleOwner getLifecycleOwner() {
+        return this;
+    }
+
+
     @Override
     public void animateThingsOut(int position, Animation.AnimationListener animationListener) {
 
@@ -259,7 +291,6 @@ public class PersonInfoActivity extends AppCompatActivity
         if (mPresenter != null){
             if (mPresenter.exit){
                 mPresenter.detachView();
-                mPresenter.detachRepo();
                 mPresenter = null;
                 finish();
             } else {

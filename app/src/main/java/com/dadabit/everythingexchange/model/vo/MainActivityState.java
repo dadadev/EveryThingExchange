@@ -13,7 +13,6 @@ public class MainActivityState {
 
     private int chosenCategory;
     private int chosenMyThing;
-    private int chosenChat;
     private int chosenFireBaseThing;
 
     private int firstVisiblePosition;
@@ -62,9 +61,6 @@ public class MainActivityState {
         return chosenMyThing;
     }
 
-    public int getChosenChat() {
-        return chosenChat;
-    }
 
     public int getChosenFireBaseThing() {
         return chosenFireBaseThing;
@@ -108,10 +104,6 @@ public class MainActivityState {
 
     public void setChosenMyThing(int chosenMyThing) {
         this.chosenMyThing = chosenMyThing;
-    }
-
-    public void setChosenChatId(int chosenChat) {
-        this.chosenChat = chosenChat;
     }
 
     public void setChosenFireBaseThing(int chosenFireBaseThing) {

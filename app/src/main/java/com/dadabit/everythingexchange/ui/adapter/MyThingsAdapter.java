@@ -37,11 +37,9 @@ public class MyThingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
 
-    public MyThingsAdapter(List<MyThingsAdapterItem> items,
-                           Context context,
+    public MyThingsAdapter(Context context,
                            @Nullable ClickListener mCallback) {
         Log.d("@@@", "MyThingsAdapter.create");
-        this.items = items;
         this.context = context;
         this.mCallback = mCallback;
     }

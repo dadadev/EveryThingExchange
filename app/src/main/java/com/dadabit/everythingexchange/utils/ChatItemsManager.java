@@ -1,6 +1,8 @@
 package com.dadabit.everythingexchange.utils;
 
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
@@ -22,6 +24,9 @@ public class ChatItemsManager {
     private int currentChatId = -1;
 
     private int newMessages;
+
+
+    private MutableLiveData<Integer> newMessagesCounter;
 
     private List<ChatItem> chatItems;
 
@@ -49,6 +54,7 @@ public class ChatItemsManager {
     public void initChatItems(List<ExchangeEntity> exchanges,
                               int[] messagesCounters){
         Log.d("@@@", "ChatItemsManager.initChatItems");
+
 
         chatItems = new ArrayList<>();
         messagesMap = new SparseArray<>();
@@ -304,6 +310,14 @@ public class ChatItemsManager {
             singleChatCallback.onDateChanged(endDate);
         }
 
+    }
+
+    public MutableLiveData<Integer> getNewMessagesCounter(){
+        if (newMessagesCounter == null){
+            newMessagesCounter = new MutableLiveData<>();
+            newMessagesCounter.setValue(9);
+        }
+        return newMessagesCounter;
     }
 
     public List<ChatMessageItem> getMessageItems(int id){

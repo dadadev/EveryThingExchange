@@ -1,12 +1,14 @@
 package com.dadabit.everythingexchange.model;
 
 
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import com.dadabit.everythingexchange.R;
@@ -54,6 +56,7 @@ public class Repository {
     private Context appContext;
     private AppDatabase db;
     private SharedPreferencesManager sharedPrefs;
+
     private FireBaseManager mFireBaseManager;
     private ChatItemsManager mChatItemsManager;
     private MyThingsManager myThingsManager;
@@ -72,9 +75,15 @@ public class Repository {
     private List<FireBaseThingItem> thingItems;
     private int thingItemsCategory;
 
+
+    private int chosenChat;
+
+
     private HandlerThread mThread;
     private Handler mHandler;
 
+
+    private MutableLiveData<List<ThingCategory>> categoriesLive;
 
 
 
@@ -96,9 +105,12 @@ public class Repository {
         if (user != null){
             Log.d("@@@", "Repository.init");
 
-            loadCategories();
+//            loadCategories();
 
             activityState = new MainActivityState();
+
+            categoriesLive = new MutableLiveData<>();
+
             mFireBaseManager = new FireBaseManager();
             mChatItemsManager = new ChatItemsManager(user.getUid());
             myThingsManager = new MyThingsManager();
@@ -121,6 +133,8 @@ public class Repository {
             public void run() {
 
                 Log.d("@@@", "Repository.AsyncInitiation.start");
+
+                loadLiveCategories();
 
                 exchanges = db.exchangeDao().loadAllExchanges();
 
@@ -182,6 +196,7 @@ public class Repository {
             }
         };
     }
+
 
 
     private ExchangesListener exchangesListener = new ExchangesListener() {
@@ -270,6 +285,42 @@ public class Repository {
     };
 
 
+    private void loadLiveCategories() {
+
+        Log.d("@@@", "REPO.loadCategories.start");
+
+        final List<ThingCategory> categories = new ArrayList<>();
+        List<Bitmap> backgroundImages = new ArrayList<>();
+
+        TypedArray imgIds = appContext.getResources().obtainTypedArray(R.array.img_categories);
+        String [] names = appContext.getResources().getStringArray(R.array.categories);
+
+        for (int i = 0; i < imgIds.length(); i++) {
+
+            backgroundImages.add(BitmapFactory.decodeResource(
+                    appContext.getResources(),
+                    imgIds.getResourceId(i, -1)));
+
+            categories.add(
+                    new ThingCategory(
+                            i,
+                            names[i],
+                            backgroundImages.get(i)));
+        }
+        imgIds.recycle();
+
+
+        categoriesLive.postValue(categories);
+
+
+        Log.d("@@@", "REPO.loadCategories.end");
+
+    }
+
+    public MutableLiveData<List<ThingCategory>> getCategoriesLive() {
+        return categoriesLive;
+    }
+
     private void loadCategories(){
         backgroundImages = new ArrayList<>();
         categories = new ArrayList<>();
@@ -291,8 +342,82 @@ public class Repository {
         imgIds.recycle();
     }
 
+    public MutableLiveData<List<ThingCategory>> loadThingCategories(){
+        Log.d("@@@", "REPO.loadCategories.init");
 
-    public void loadFireBaseThings(final LoadThingsCallback mCallback) {
+        final MutableLiveData<List<ThingCategory>> result = new MutableLiveData<>();
+
+        Log.d("@@@", "REPO.loadCategories.start");
+
+        List<ThingCategory> categories = new ArrayList<>();
+        List<Bitmap> backgroundImages = new ArrayList<>();
+
+        TypedArray imgIds = appContext.getResources().obtainTypedArray(R.array.img_categories);
+        String [] names = appContext.getResources().getStringArray(R.array.categories);
+
+        for (int i = 0; i < imgIds.length(); i++) {
+
+            backgroundImages.add(BitmapFactory.decodeResource(
+                    appContext.getResources(),
+                    imgIds.getResourceId(i, -1)));
+
+            categories.add(
+                    new ThingCategory(
+                            i,
+                            names[i],
+                            backgroundImages.get(i)));
+        }
+        imgIds.recycle();
+
+        result.setValue(categories);
+
+        Log.d("@@@", "REPO.loadCategories.end");
+
+
+//        getHandler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d("@@@", "REPO.loadCategories.start");
+//
+//                final List<ThingCategory> categories = new ArrayList<>();
+//                List<Bitmap> backgroundImages = new ArrayList<>();
+//
+//                TypedArray imgIds = appContext.getResources().obtainTypedArray(R.array.img_categories);
+//                String [] names = appContext.getResources().getStringArray(R.array.categories);
+//
+//                for (int i = 0; i < imgIds.length(); i++) {
+//
+//                    backgroundImages.add(BitmapFactory.decodeResource(
+//                            appContext.getResources(),
+//                            imgIds.getResourceId(i, -1)));
+//
+//                    categories.add(
+//                            new ThingCategory(
+//                                    i,
+//                                    names[i],
+//                                    backgroundImages.get(i)));
+//                }
+//                imgIds.recycle();
+//
+//
+//                new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d("@@@", "REPO.loadCategories.postToUi");
+//
+//                        result.setValue(categories);
+//                    }
+//                });
+//
+//                Log.d("@@@", "REPO.loadCategories.end");
+//            }
+//        });
+
+        return result;
+    }
+
+
+    public void loadFireBaseThings(final int category, final LoadThingsCallback mCallback) {
 
         if (thingItems != null
                 && activityState.getChosenCategory() == thingItemsCategory
@@ -307,7 +432,7 @@ public class Repository {
                     String.format(Locale.getDefault(), "things/%s/%s/%d",
                             user.getCountry(),
                             user.getLocation(),
-                            activityState.getChosenCategory()),
+                            category),
                     new ValueEventListener() {
                         @Override
                         public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -535,6 +660,15 @@ public class Repository {
 
         }
         return null;
+    }
+
+
+    public void setChosenChat(int chosenChat) {
+        this.chosenChat = chosenChat;
+    }
+
+    public int getChosenChat() {
+        return chosenChat;
     }
 
     public SharedPreferencesManager getSharedPreferences() {

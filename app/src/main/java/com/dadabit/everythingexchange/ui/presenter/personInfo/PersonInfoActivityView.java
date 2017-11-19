@@ -1,6 +1,7 @@
 package com.dadabit.everythingexchange.ui.presenter.personInfo;
 
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
@@ -12,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.dadabit.everythingexchange.ui.presenter.MvpView;
+import com.dadabit.everythingexchange.ui.viewmodel.PersonInfoActivityViewModel;
 
 public interface PersonInfoActivityView  extends MvpView{
 
@@ -53,6 +55,10 @@ public interface PersonInfoActivityView  extends MvpView{
     RecyclerView getHashTagsRecyclerView();
 
     RecyclerView getMyThingsRecyclerView();
+
+    PersonInfoActivityViewModel getViewModel();
+
+
 
     void animateThingsIn();
 

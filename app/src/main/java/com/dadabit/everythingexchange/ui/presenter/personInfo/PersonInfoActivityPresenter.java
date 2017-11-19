@@ -1,6 +1,8 @@
 package com.dadabit.everythingexchange.ui.presenter.personInfo;
 
 
+import android.arch.lifecycle.Observer;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -11,29 +13,33 @@ import android.view.animation.AnimationUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dadabit.everythingexchange.R;
-import com.dadabit.everythingexchange.model.PersonInfoActivityRepo;
-import com.dadabit.everythingexchange.model.firebase.LoadFireBaseUserCallback;
 import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
 import com.dadabit.everythingexchange.model.vo.User;
 import com.dadabit.everythingexchange.ui.adapter.HashTagsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.MyThingsIconsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.PersonThingsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.BasePresenter;
+import com.dadabit.everythingexchange.ui.viewmodel.PersonInfoActivityViewModel;
 import com.dadabit.everythingexchange.utils.Dialogs;
 import com.dadabit.everythingexchange.utils.Utils;
 
+import java.util.List;
+
 public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivityView> implements View.OnClickListener{
 
-    private PersonInfoActivityRepo mRepository;
     private PersonThingsAdapter personThingsAdapter;
     private MyThingsIconsAdapter myThingsAdapter;
+
+    private PersonInfoActivityViewModel mViewModel;
+
+    private String uid;
 
 
     public PersonInfoActivityPresenter(String uid) {
         Log.d("@@@", "PersonInfoActivityPresenter.onCreate");
-        if (uid!= null){
-            mRepository = new PersonInfoActivityRepo(uid);
-        }
+
+        this.uid = uid;
+
     }
 
 
@@ -42,20 +48,122 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
         Log.d("@@@", "PersonInfoActivityPresenter.attachView");
         super.attachView(personInfoActivityView);
 
-        if (mRepository!= null){
+        if (uid != null){
 
+            getView().getAppBarLayout()
+                    .setExpanded(false, false);
 
-            getView().getAppBarLayout().setExpanded(false, false);
+            mViewModel = getView().getViewModel();
 
-            showContent();
+            observeData();
 
             setClickListeners();
 
         } else {
+
             exit = true;
+
             getView().goBack();
+
         }
+
     }
+
+    private void observeData() {
+
+        mViewModel
+                .getPersonInfo(uid)
+                .observe(
+                        getView().getLifecycleOwner(),
+                        new Observer<User>() {
+
+                            @Override
+                            public void onChanged(@Nullable User user) {
+                                if (user != null){
+
+                                    Log.d("@@@", "PersonInfoActivityPresenter.observeData.getPersonInfo: "+user.getName());
+
+                                    showData(user);
+
+                                } else {
+
+                                    Log.d("@@@", "PersonInfoActivityPresenter.observeData.getPersonInfo: USERisNULL");
+
+                                }
+                            }
+                        });
+    }
+
+    private void showData(User fireBaseUser) {
+
+        Glide.with(getView().getActivityContext())
+                .load(fireBaseUser.getImgUrl())
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(getView().getPersonImageView());
+
+
+        Glide.with(getView().getActivityContext())
+                .load(fireBaseUser.getImgUrl())
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(getView().getPersonSmallImageView());
+
+        getView().getTitleTextView().setText(
+                fireBaseUser.getName());
+
+
+        switch (mViewModel.getState()){
+
+            case PersonInfoActivityViewModel.STATE_PERSON_THINGS:
+
+                loadPersonFireBaseThings();
+
+                break;
+
+            case PersonInfoActivityViewModel.STATE_SINGLE_THING:
+
+                showSingleThing();
+
+                break;
+
+            case PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN:
+
+                showSingleThing();
+
+                showMyThings();
+
+                break;
+
+            case PersonInfoActivityViewModel.STATE_MY_THING_CHOSEN:
+
+
+                if (mViewModel.getMyChosenThingPosition() != -1){
+
+                    getView().getIvThing2().setImageBitmap(
+                            mViewModel.getMyAvailableThings()
+                                    .get(mViewModel.getMyChosenThingPosition())
+                                    .getImgBitmap());
+
+                    showSingleThing();
+
+                    getView().showMyThingIcon();
+
+                }
+
+
+                break;
+
+        }
+
+
+        setClickListeners();
+
+
+    }
+
 
 
     private PersonThingsAdapter.ClickCallback onThingClickListener =
@@ -73,11 +181,12 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
                                 @Override
                                 public void onAnimationEnd(Animation animation) {
 
-                                    mRepository.setChosenThing(position);
+                                    mViewModel.setState(PersonInfoActivityViewModel.STATE_SINGLE_THING);
+
+                                    mViewModel.setChosenThing(position);
 
                                     getView().getRecyclerView().setVisibility(View.GONE);
 
-                                    mRepository.setState(PersonInfoActivityRepo.STATE_SINGLE_THING);
 
                                     showSingleThing();
 
@@ -98,19 +207,19 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
                 @Override
                 public void onClick(int position) {
 
-                    if (position == mRepository.getMyAvailableThings().size()){
+                    if (position == mViewModel.getMyAvailableThings().size()){
 
                         getView().animateMyThingsOut();
 
-                        mRepository.setState(PersonInfoActivityRepo.STATE_WAITING_NEW_THING);
+                        mViewModel.setState(PersonInfoActivityViewModel.STATE_WAITING_NEW_THING);
 
                         getView().startAddThingActivity();
 
                     } else {
 
-                        mRepository.setState(PersonInfoActivityRepo.STATE_MY_THING_CHOSEN);
+                        mViewModel.setState(PersonInfoActivityViewModel.STATE_MY_THING_CHOSEN);
 
-                        mRepository.setMyChosenThingPosition(position);
+                        mViewModel.setMyChosenThingPosition(position);
 
                         showMyThingChosen();
 
@@ -120,92 +229,92 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
             };
 
 
-    private void showContent() {
-
-        mRepository.loadFireBaseUser(new LoadFireBaseUserCallback() {
-            @Override
-            public void onLoaded(User fireBaseUser) {
-                Log.d("@@@", "PersonInfoActivityPresenter.showContent.onLoaded");
-
-                if (isViewAttached()){
-
-                    if (fireBaseUser != null){
-
-                        Glide.with(getView().getActivityContext())
-                                .load(fireBaseUser.getImgUrl())
-                                .thumbnail(0.5f)
-                                .crossFade()
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .into(getView().getPersonImageView());
-
-
-                        Glide.with(getView().getActivityContext())
-                                .load(fireBaseUser.getImgUrl())
-                                .thumbnail(0.5f)
-                                .crossFade()
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .into(getView().getPersonSmallImageView());
-
-                        getView().getTitleTextView().setText(
-                                fireBaseUser.getName());
-
-
-                        switch (mRepository.getState()){
-
-                            case PersonInfoActivityRepo.STATE_PERSON_THINGS:
-
-                                loadFireBaseData();
-
-                                break;
-
-                            case PersonInfoActivityRepo.STATE_SINGLE_THING:
-
-                                showSingleThing();
-
-                                break;
-
-                            case PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN:
-
-                                showSingleThing();
-
-                                showMyThings();
-
-                                break;
-
-                            case PersonInfoActivityRepo.STATE_MY_THING_CHOSEN:
-
-
-                                if (mRepository.getMyChosenThingPosition() != -1){
-
-                                    getView().getIvThing2().setImageBitmap(
-                                            mRepository.getMyAvailableThings()
-                                                    .get(mRepository.getMyChosenThingPosition())
-                                                    .getImgBitmap());
-
-                                    showSingleThing();
-
-                                    getView().showMyThingIcon();
-
-                                }
-
-
-                                break;
-
-                        }
-
-
-                        setClickListeners();
-
-                    } else {
-                        exit = true;
-                        getView().goBack();
-                    }
-
-
-                }
-            }
-        });
-    }
+//    private void showContent() {
+//
+//        mViewModel.loadFireBaseUser(new LoadFireBaseUserCallback() {
+//            @Override
+//            public void onLoaded(User fireBaseUser) {
+//                Log.d("@@@", "PersonInfoActivityPresenter.showContent.onLoaded");
+//
+//                if (isViewAttached()){
+//
+//                    if (fireBaseUser != null){
+//
+//                        Glide.with(getView().getActivityContext())
+//                                .load(fireBaseUser.getImgUrl())
+//                                .thumbnail(0.5f)
+//                                .crossFade()
+//                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                .into(getView().getPersonImageView());
+//
+//
+//                        Glide.with(getView().getActivityContext())
+//                                .load(fireBaseUser.getImgUrl())
+//                                .thumbnail(0.5f)
+//                                .crossFade()
+//                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                .into(getView().getPersonSmallImageView());
+//
+//                        getView().getTitleTextView().setText(
+//                                fireBaseUser.getName());
+//
+//
+//                        switch (mRepository.getState()){
+//
+//                            case PersonInfoActivityRepo.STATE_PERSON_THINGS:
+//
+//                                loadPersonFireBaseThings();
+//
+//                                break;
+//
+//                            case PersonInfoActivityRepo.STATE_SINGLE_THING:
+//
+//                                showSingleThing();
+//
+//                                break;
+//
+//                            case PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN:
+//
+//                                showSingleThing();
+//
+//                                showMyThings();
+//
+//                                break;
+//
+//                            case PersonInfoActivityRepo.STATE_MY_THING_CHOSEN:
+//
+//
+//                                if (mRepository.getMyChosenThingPosition() != -1){
+//
+//                                    getView().getIvThing2().setImageBitmap(
+//                                            mRepository.getMyAvailableThings()
+//                                                    .get(mRepository.getMyChosenThingPosition())
+//                                                    .getImgBitmap());
+//
+//                                    showSingleThing();
+//
+//                                    getView().showMyThingIcon();
+//
+//                                }
+//
+//
+//                                break;
+//
+//                        }
+//
+//
+//                        setClickListeners();
+//
+//                    } else {
+//                        exit = true;
+//                        getView().goBack();
+//                    }
+//
+//
+//                }
+//            }
+//        });
+//    }
 
     private void setClickListeners() {
 
@@ -217,66 +326,67 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
     }
 
 
-    private void loadFireBaseData() {
+    private void loadPersonFireBaseThings() {
 
         getView().getProgressBar().setVisibility(View.VISIBLE);
 
-        mRepository.attachNewThingCallback(new PersonThingsObserver() {
-            @Override
-            public void onThingLoaded(FireBaseThingItem thing) {
+        mViewModel.getThings().observe(
+                getView().getLifecycleOwner(),
+                new Observer<List<FireBaseThingItem>>() {
+                    @Override
+                    public void onChanged(@Nullable List<FireBaseThingItem> fireBaseThingItems) {
 
-                if (isViewAttached()){
+                        if (fireBaseThingItems != null){
 
-                    getView().getProgressBar().setVisibility(View.GONE);
+                            getView().getProgressBar().setVisibility(View.GONE);
+
+                            getView().getAppBarLayout().setExpanded(true, true);
 
 
-                    getView().getAppBarLayout().setExpanded(true, true);
+                            if (getView().getRecyclerView().getAdapter() == null){
+                                prepareThingsAdapter();
+                            }
 
-                    if (getView().getRecyclerView().getAdapter() == null){
-                        prepareThingsAdapter();
+                            personThingsAdapter.setThings(fireBaseThingItems);
+                        }
+
+
                     }
-
-                    personThingsAdapter.addNewThing(thing);
                 }
-            }
-        });
+        );
+
 
     }
 
     private void showSingleThing() {
 
-        if (mRepository.getChosenThing() > -1){
+        if (mViewModel.getChosenThing() != null){
 
             Glide.with(getView().getActivityContext())
-                    .load(mRepository.getThings().get(mRepository.getChosenThing()).getItemImgLink())
+                    .load(mViewModel.getChosenThing().getItemImgLink())
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(getView().getIvThing1());
 
             getView().getTvLocation()
-                    .setText(mRepository.getThings()
-                            .get(mRepository.getChosenThing()).getItemArea());
+                    .setText(mViewModel.getChosenThing().getItemArea());
 
             getView().getTvThingDate()
-                    .setText(Utils.timestampToString(mRepository.getThings()
-                            .get(mRepository.getChosenThing()).getDate()));
+                    .setText(Utils.timestampToString(mViewModel.getChosenThing().getDate()));
 
             getView().getTvThingName()
-                    .setText(mRepository.getThings()
-                            .get(mRepository.getChosenThing()).getItemName());
+                    .setText(mViewModel.getChosenThing().getItemName());
 
             getView().getTvCategory()
-                    .setText(mRepository.getCategoryName(
-                            mRepository.getThings()
-                                    .get(mRepository.getChosenThing()).getItemCategory()));
+                    .setText(mViewModel.getCategoryName(
+                            mViewModel.getChosenThing().getItemCategory()));
 
             getView().getTvThingDescription()
-                    .setText(mRepository.getThings()
-                            .get(mRepository.getChosenThing()).getItemDescription());
+                    .setText(mViewModel.getChosenThing().getItemDescription());
 
 
-            if (mRepository.getThings().get(mRepository.getChosenThing()).getHashTags() != null){
+            if (mViewModel.getChosenThing().getHashTags() != null){
 
 
                 getView().getHashTagsRecyclerView().setLayoutManager(
@@ -286,10 +396,7 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
 
                 getView().getHashTagsRecyclerView()
                         .setAdapter(
-                                new HashTagsAdapter(
-                                        mRepository.getThings()
-                                                .get(mRepository.getChosenThing()).getHashTags()));
-
+                                new HashTagsAdapter(mViewModel.getChosenThing().getHashTags()));
             }
 
 
@@ -297,6 +404,7 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
                     AnimationUtils.loadAnimation(
                             getView().getActivityContext(),
                             R.anim.slide_in_top));
+
             getView().getSingeThingCard().setVisibility(View.VISIBLE);
 
             getView().getAppBarLayout().setExpanded(false, true);
@@ -311,22 +419,20 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
 
     private void showMyThings() {
 
-        mRepository.setState(PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN);
+        mViewModel.setState(PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN);
 
         if (getView().getMyThingsRecyclerView().getAdapter() == null){
-
 
             getView().getMyThingsRecyclerView().setLayoutManager(
                     new LinearLayoutManager(getView().getActivityContext(), LinearLayoutManager.HORIZONTAL,false));
 
             getView().getMyThingsRecyclerView().setAdapter(
                     myThingsAdapter = new MyThingsIconsAdapter(
-                            mRepository.getMyAvailableThings(),
+                            mViewModel.getMyAvailableThings(),
                             ContextCompat.getDrawable(
                                     getView().getActivityContext(),
                                     R.drawable.ic_add_black_24dp),
                             myOfferClickListener));
-
         }
 
         getView().animateMyThingsIn();
@@ -339,8 +445,8 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
 
 
         getView().getIvThing2().setImageBitmap(
-                mRepository.getMyAvailableThings()
-                        .get(mRepository.getMyChosenThingPosition())
+                mViewModel.getMyAvailableThings()
+                        .get(mViewModel.getMyChosenThingPosition())
                         .getImgBitmap());
 
         getView().animateMyThingChosen();
@@ -352,16 +458,16 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
     public boolean exit = false;
     public void onBackPressed() {
 
-        switch (mRepository.getState()){
+        switch (mViewModel.getState()){
 
-            case PersonInfoActivityRepo.STATE_PERSON_THINGS:
+            case PersonInfoActivityViewModel.STATE_PERSON_THINGS:
 
                 exit = true;
                 getView().goBack();
 
                 break;
 
-            case PersonInfoActivityRepo.STATE_SINGLE_THING:
+            case PersonInfoActivityViewModel.STATE_SINGLE_THING:
 
 
                 getView().animateSingleThingOut(
@@ -374,14 +480,14 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
                             @Override
                             public void onAnimationEnd(Animation animation) {
 
-                                mRepository.setChosenThing(-1);
+                                mViewModel.removeChosenThing();
 
-                                mRepository.setState(PersonInfoActivityRepo.STATE_PERSON_THINGS);
+                                mViewModel.setState(PersonInfoActivityViewModel.STATE_PERSON_THINGS);
 
                                 getView().getFab().hide();
 
                                 if (getView().getRecyclerView().getAdapter() == null){
-                                    loadFireBaseData();
+                                    loadPersonFireBaseThings();
                                 } else {
                                     getView().animateThingsIn();
                                 }
@@ -397,19 +503,19 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
 
                 break;
 
-            case PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN:
+            case PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN:
 
-                mRepository.setState(PersonInfoActivityRepo.STATE_SINGLE_THING);
+                mViewModel.setState(PersonInfoActivityViewModel.STATE_SINGLE_THING);
 
                 getView().animateMyThingsOut();
 
                 break;
 
-            case PersonInfoActivityRepo.STATE_MY_THING_CHOSEN:
+            case PersonInfoActivityViewModel.STATE_MY_THING_CHOSEN:
 
-                mRepository.setState(PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN);
+                mViewModel.setState(PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN);
 
-                mRepository.setMyChosenThingPosition(-1);
+                mViewModel.setMyChosenThingPosition(-1);
 
                 getView().animateHideMyThingChosen();
 
@@ -441,13 +547,8 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
     @Override
     public void detachView() {
         super.detachView();
-        mRepository.detachNewThingCallback();
     }
 
-    public void detachRepo() {
-        Log.d("@@@", "PersonInfoActivityPresenter.detachRepo");
-        mRepository = null;
-    }
 
     @Override
     public void onClick(View v) {
@@ -459,11 +560,11 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
                 Log.d("@@@", "PersonInfoActivityPresenter.onClick.person_info_fab");
 
 
-                switch (mRepository.getState()){
-                    case PersonInfoActivityRepo.STATE_MY_THING_CHOSEN:
+                switch (mViewModel.getState()){
+                    case PersonInfoActivityViewModel.STATE_MY_THING_CHOSEN:
                         Log.d("@@@", "PersonInfoActivityPresenter.onClick.person_info_fab.sendOffer");
 
-                        mRepository.sendOffer();
+                        mViewModel.sendOffer();
 
                         exit = true;
                         getView().goBack();
@@ -471,11 +572,10 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
 
                         break;
 
-                    case PersonInfoActivityRepo.STATE_SINGLE_THING:
+                    case PersonInfoActivityViewModel.STATE_SINGLE_THING:
                         Log.d("@@@", "PersonInfoActivityPresenter.onClick.person_info_fab.showMyThings");
 
                         showMyThings();
-
 
                         break;
                 }
@@ -486,22 +586,19 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
             case R.id.person_info_thingCardView_thing1_imageView:
                 Log.d("@@@", "PersonInfoActivityPresenter.onClick.person_info_thingCardView_thing1_imageView");
 
-                if (mRepository.getChosenThing() > -1){
+                if (mViewModel.getChosenThing() != null){
 
                     Dialogs.getUrlImageDialog(
                             getView().getActivityContext(),
-                            mRepository.getThings()
-                                    .get(mRepository.getChosenThing())
-                                    .getItemImgLink())
+                            mViewModel.getChosenThing().getItemImgLink())
                             .show();
-
                 }
                 break;
 
             case R.id.person_info_thingCardView_thing2_imageView:
                 Log.d("@@@", "PersonInfoActivityPresenter.onClick.person_info_thingCardView_thing2_imageView");
 
-                mRepository.setState(PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN);
+                mViewModel.setState(PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN);
 
                 getView().animateHideMyThingChosen();
 
@@ -517,15 +614,14 @@ public class PersonInfoActivityPresenter extends BasePresenter<PersonInfoActivit
     public void onActivityResumed() {
 
 
-        if (mRepository.getState() == PersonInfoActivityRepo.STATE_WAITING_NEW_THING
+        if (mViewModel.getState() == PersonInfoActivityViewModel.STATE_WAITING_NEW_THING
                 && myThingsAdapter != null){
 
+            mViewModel.updateAvailableThings();
 
-            mRepository.updateAvailableThings();
+            myThingsAdapter.setThings(mViewModel.getMyAvailableThings());
 
-            myThingsAdapter.setThings(mRepository.getMyAvailableThings());
-
-            mRepository.setState(PersonInfoActivityRepo.STATE_MY_THINGS_SHOWN);
+            mViewModel.setState(PersonInfoActivityViewModel.STATE_MY_THINGS_SHOWN);
 
             showMyThings();
 
