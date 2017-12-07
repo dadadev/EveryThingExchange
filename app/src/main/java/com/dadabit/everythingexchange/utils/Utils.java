@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -27,6 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -383,11 +385,32 @@ public class Utils {
         return bitmap;
     }
 
+
+
+    public static byte[] imageToBytes(Image image) {
+        Image.Plane[] planes = image.getPlanes();
+
+        ByteBuffer buffer = planes[0].getBuffer();
+
+        byte[] result = new byte[buffer.remaining()];
+        buffer.get(result);
+
+        image.close();
+
+        return result;
+    }
+
+
+
     public static Bitmap getImageBitmap(Context context, Uri photoUri) throws IOException {
+
         int MAX_IMAGE_DIMENSION = 400;
+
         InputStream is = context.getContentResolver().openInputStream(photoUri);
+
         BitmapFactory.Options dbo = new BitmapFactory.Options();
         dbo.inJustDecodeBounds = true;
+
         BitmapFactory.decodeStream(is, null, dbo);
         is.close();
 

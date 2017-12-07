@@ -365,8 +365,7 @@ public class OffersActivity extends AppCompatActivity
     @Override
     public void startChangeThingActivity(int thingId) {
 
-        Intent intent = new Intent(this, AddThingActivity.class)
-                .putExtra(AddThingActivity.ARGUMENT_THING_ID, thingId);
+        Intent intent = new Intent(this, AddThingActivity.class);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

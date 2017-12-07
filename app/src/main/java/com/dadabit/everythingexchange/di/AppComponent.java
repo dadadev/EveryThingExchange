@@ -6,10 +6,10 @@ import com.dadabit.everythingexchange.model.OffersActivityRepo;
 import com.dadabit.everythingexchange.model.PersonInfoActivityRepo;
 import com.dadabit.everythingexchange.model.SingleChatActivityRepo;
 import com.dadabit.everythingexchange.model.SingleThingActivityRepo;
+import com.dadabit.everythingexchange.ui.activity.AddThingActivity;
 import com.dadabit.everythingexchange.ui.activity.MainActivity;
 import com.dadabit.everythingexchange.ui.activity.PersonInfoActivity;
 import com.dadabit.everythingexchange.ui.presenter.auth.AuthActivityPresenter;
-import com.dadabit.everythingexchange.ui.presenter.main.MainActivityPresenter;
 
 import javax.inject.Singleton;
 
@@ -21,6 +21,8 @@ public interface AppComponent {
 
 
     void inject(MainActivity mainActivity);
+
+    void inject(AddThingActivity addThingActivity);
 
     void inject(PersonInfoActivity personInfoActivity);
 

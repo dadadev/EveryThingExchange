@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 
 import com.dadabit.everythingexchange.R;
@@ -30,6 +29,7 @@ import com.dadabit.everythingexchange.model.vo.MainActivityState;
 import com.dadabit.everythingexchange.model.vo.OfferItem;
 import com.dadabit.everythingexchange.model.vo.ThingCategory;
 import com.dadabit.everythingexchange.model.vo.User;
+import com.dadabit.everythingexchange.utils.CameraHelper;
 import com.dadabit.everythingexchange.utils.ChatItemsManager;
 import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.MyThingsManager;
@@ -65,8 +65,6 @@ public class Repository {
 
     private MainActivityState activityState;
 
-    private List<ThingCategory> categories;
-    private List<Bitmap> backgroundImages;
 
     private List<ExchangeEntity> exchanges;
     private List<String> locations;
@@ -84,6 +82,8 @@ public class Repository {
 
 
     private MutableLiveData<List<ThingCategory>> categoriesLive;
+
+    private CameraHelper cameraHelper;
 
 
 
@@ -321,26 +321,26 @@ public class Repository {
         return categoriesLive;
     }
 
-    private void loadCategories(){
-        backgroundImages = new ArrayList<>();
-        categories = new ArrayList<>();
-        TypedArray imgIds = appContext.getResources().obtainTypedArray(R.array.img_categories);
-        String [] names = appContext.getResources().getStringArray(R.array.categories);
-
-        for (int i = 0; i < imgIds.length(); i++) {
-
-            backgroundImages.add(BitmapFactory.decodeResource(
-                    appContext.getResources(),
-                    imgIds.getResourceId(i, -1)));
-
-            categories.add(
-                    new ThingCategory(
-                            i,
-                            names[i],
-                            backgroundImages.get(i)));
-        }
-        imgIds.recycle();
-    }
+//    private void loadCategories(){
+//        backgroundImages = new ArrayList<>();
+//        categories = new ArrayList<>();
+//        TypedArray imgIds = appContext.getResources().obtainTypedArray(R.array.img_categories);
+//        String [] names = appContext.getResources().getStringArray(R.array.categories);
+//
+//        for (int i = 0; i < imgIds.length(); i++) {
+//
+//            backgroundImages.add(BitmapFactory.decodeResource(
+//                    appContext.getResources(),
+//                    imgIds.getResourceId(i, -1)));
+//
+//            categories.add(
+//                    new ThingCategory(
+//                            i,
+//                            names[i],
+//                            backgroundImages.get(i)));
+//        }
+//        imgIds.recycle();
+//    }
 
     public MutableLiveData<List<ThingCategory>> loadThingCategories(){
         Log.d("@@@", "REPO.loadCategories.init");
@@ -692,12 +692,9 @@ public class Repository {
         return thingItems;
     }
 
-    public List<Bitmap> getBackgroundImages() {
-        return backgroundImages;
-    }
 
     public List<ThingCategory> getCategories() {
-        return categories;
+        return null;
     }
 
     public MainActivityState getState() {
@@ -888,4 +885,41 @@ public class Repository {
     public interface LocationsLoaderCallback {
         void onLocationsLoad(List<String> locations, int homePosition);
     }
+
+
+    public CameraHelper getCameraHelper() {
+        return cameraHelper == null ? cameraHelper = new CameraHelper(appContext) : cameraHelper;
+    }
+
+    public void removeCameraHelper(){
+        if (cameraHelper != null){
+            cameraHelper.closeCamera();
+            cameraHelper = null;
+        }
+    }
+
+
+    public void saveNewThing(byte[] image) {
+        Log.d("@@@", "Repository.saveNewThing");
+
+        myThingsManager.initNewThing(BitmapFactory.decodeByteArray(image, 0, image.length));
+
+
+        new ImageUploader(
+                image,
+                user.getUid(),
+                System.currentTimeMillis(),
+                new ImageUploader.OnFinishListener() {
+                    @Override
+                    public void onFinish(String url) {
+                        Log.d("@@@", "Repository.saveNewThing.ImageUploader.onFinish");
+
+                        myThingsManager.setNewThingImageUrl(url);
+
+                    }
+                })
+                .send();
+
+    }
+
 }

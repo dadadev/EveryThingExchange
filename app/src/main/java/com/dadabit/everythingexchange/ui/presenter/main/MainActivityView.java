@@ -4,6 +4,7 @@ package com.dadabit.everythingexchange.ui.presenter.main;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -56,6 +57,8 @@ public interface MainActivityView extends MvpView {
 
     TextureView getTextureView();
 
+    FloatingActionButton getImageCaptureBtn();
+
 //    ====================TRANSITIONS========================
 
 
@@ -82,7 +85,7 @@ public interface MainActivityView extends MvpView {
 
     void animateRecyclerOut(int direction, int duration, Animation.AnimationListener animationListener);
 
-    void showCamera();
+    void animateCameraIn();
 
     void hideCamera(Animation.AnimationListener animationListener);
 

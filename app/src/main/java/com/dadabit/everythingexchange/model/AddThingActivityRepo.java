@@ -257,13 +257,13 @@ public class AddThingActivityRepo {
         if (hashTagsList == null){
             return null;
         } else {
-            String result = "";
+            StringBuilder result = new StringBuilder();
 
             for (String hashTag :
                     hashTagsList) {
-                result += hashTag;
+                result.append(hashTag);
             }
-            return result;
+            return result.toString();
         }
     }
 
@@ -294,9 +294,7 @@ public class AddThingActivityRepo {
         return imgBitmap;
     }
 
-    public List<ThingCategory> getCategories() {
-        return mainRepository.getCategories();
-    }
+
 
     public String getName() {
         return name;

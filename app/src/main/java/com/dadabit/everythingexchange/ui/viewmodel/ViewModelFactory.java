@@ -22,6 +22,8 @@ public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
             return (T) new MainActivityViewModel(mRepository);
         } else if (modelClass.equals(PersonInfoActivityViewModel.class)){
             return (T) new PersonInfoActivityViewModel(mRepository);
+        } else if (modelClass.equals(AddThingActivityViewModel.class)){
+            return (T) new AddThingActivityViewModel(mRepository);
         }
 
         return super.create(modelClass);

@@ -9,16 +9,17 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.dadabit.everythingexchange.ui.presenter.MvpView;
+import com.dadabit.everythingexchange.ui.viewmodel.AddThingActivityViewModel;
 
 public interface AddThingActivityView extends MvpView{
+
+    void animShowCategories();
 
     void animateCategoryChoose();
 
     void animateSaveData();
 
     void goBack();
-
-    void captureImage();
 
     void showKeyboard();
 
@@ -41,5 +42,8 @@ public interface AddThingActivityView extends MvpView{
     Button getBtnHashTag();
 
     EditText getHashTagEditText();
+
+
+    AddThingActivityViewModel getViewModel();
 
 }

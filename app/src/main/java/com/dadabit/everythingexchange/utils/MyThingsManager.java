@@ -2,12 +2,14 @@ package com.dadabit.everythingexchange.utils;
 
 
 import android.arch.lifecycle.MutableLiveData;
+import android.graphics.Bitmap;
 import android.os.Looper;
 import android.util.Log;
 
 import com.dadabit.everythingexchange.model.db.entity.ExchangeEntity;
 import com.dadabit.everythingexchange.model.db.entity.ThingEntity;
 import com.dadabit.everythingexchange.model.vo.MyThingsAdapterItem;
+import com.dadabit.everythingexchange.model.vo.NewThingCreation;
 import com.dadabit.everythingexchange.model.vo.OfferItem;
 
 import java.util.ArrayList;
@@ -26,6 +28,10 @@ public class MyThingsManager {
 
     private MyThingsChangeObserver myThingsChangeObserver;
     private OffersChangeObserver offersByPersonObserver;
+
+
+    private NewThingCreation newThing;
+
 
 
     public void init(List<ThingEntity> myThings, List<ExchangeEntity> exchanges){
@@ -231,7 +237,6 @@ public class MyThingsManager {
     }
 
 
-
     public OfferItem getOfferById(String id){
 
         for (String thingId : offersByThing.keySet()) {
@@ -330,6 +335,22 @@ public class MyThingsManager {
                 }
             }
         }
+    }
+
+
+    public void initNewThing(Bitmap bitmap){
+        newThing = new NewThingCreation(bitmap);
+
+    }
+
+    public void setNewThingImageUrl(String url){
+        if (newThing != null){
+            newThing.setUrl(url);
+        }
+    }
+
+    public NewThingCreation getNewThing(){
+        return newThing;
     }
 
 

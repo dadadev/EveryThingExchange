@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
 
         classpath 'com.google.gms:google-services:3.1.0'
     }
@@ -19,7 +19,7 @@ ext.arch_version = "1.0.0"
 ext.arch_compiler = "1.0.0"
 ext.firebase_version = "11.6.0"
 
-ext.butterknife_version = "8.5.1"
+ext.butterknife_version = "8.8.1"
 ext.dagget_version = "2.11"
 
 ext.retrofit_version = "2.3.0"

@@ -7,10 +7,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -49,8 +49,6 @@ import com.dadabit.everythingexchange.ui.presenter.main.MainActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.main.MainActivityView;
 import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
 import com.dadabit.everythingexchange.ui.viewmodel.ViewModelFactory;
-import com.dadabit.everythingexchange.utils.CamManager;
-import com.dadabit.everythingexchange.utils.CameraHelper;
 import com.dadabit.everythingexchange.utils.Constants;
 import com.dadabit.everythingexchange.utils.Utils;
 
@@ -95,10 +93,6 @@ public class MainActivity
 
     private UserInfoDialog userInfoDialog;
 
-    private CameraHelper mCameraHelper;
-
-    private CamManager mCamManager;
-
     @Inject ViewModelFactory factory;
 
 
@@ -119,24 +113,25 @@ public class MainActivity
 
         mPresenter.attachView(this);
 
+
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("@@@", "MainActivity.onResume");
-
-        mPresenter.onActivityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d("@@@", "MainActivity.onPause");
-
-        mPresenter.onActivityPaused();
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.d("@@@", "MainActivity.onResume");
+//
+//        mPresenter.onActivityResumed();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.d("@@@", "MainActivity.onPause");
+//
+//        mPresenter.onActivityPaused();
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -158,11 +153,6 @@ public class MainActivity
         Log.d("@@@", "MainActivity.onDestroy");
         super.onDestroy();
         mPresenter.detachView();
-
-        if (mCameraHelper != null){
-            mCameraHelper.closeCamera();
-            mCameraHelper = null;
-        }
 
         if (isFinishing()) {
             mPresenter.detachListeners();
@@ -247,7 +237,6 @@ public class MainActivity
         return mToolbarTitle;
     }
 
-
     @Override
     public CollapsingToolbarLayout getCollapsingLayout() {
         return mCollapsingLayout;
@@ -283,6 +272,11 @@ public class MainActivity
         return mTextureView;
     }
 
+    @Override
+    public FloatingActionButton getImageCaptureBtn() {
+        return btnCamera;
+    }
+
 
 //    ====================TRANSITIONS========================
 
@@ -304,30 +298,19 @@ public class MainActivity
                 = (FireBaseThingsAdapter.ViewHolder) mRecyclerView
                 .findViewHolderForAdapterPosition(position);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && holder != null) {
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(
+                        this,
+                        holder.mImageView,
+                        "transitionThingImg");
 
-
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(
-                            this,
-                            holder.mImageView,
-                            "transitionThingImg");
-
-            startActivity(intent, options.toBundle());
-
-        } else {
-
-            startActivity(intent);
-        }
+        startActivity(intent, options.toBundle());
     }
-
 
     @Override
     public void startAddThingActivity() {
         startActivity(new Intent(this, AddThingActivity.class));
     }
-
 
     @Override
     public void startOffersActivity(int position) {
@@ -339,20 +322,13 @@ public class MainActivity
                 (MyThingsAdapter.ThingViewHolder) mRecyclerView
                         .findViewHolderForAdapterPosition(position);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && holder != null) {
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(
+                        this,
+                        holder.mImageView,
+                        getString(R.string.transitions_id_thing1Img));
 
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(
-                            this,
-                            holder.mImageView,
-                            getString(R.string.transitions_id_thing1Img));
-
-            startActivity(intent, options.toBundle());
-        } else {
-
-            startActivity(intent);
-        }
+        startActivity(intent, options.toBundle());
 
 
     }
@@ -363,66 +339,68 @@ public class MainActivity
         Intent intent = new Intent(this, SingleChatActivity.class);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        switch (adapterType){
+            case Constants.ADAPTER_TYPE_CHATS:
 
-            switch (adapterType){
-                case Constants.ADAPTER_TYPE_CHATS:
+                ChatsAdapter.ViewHolder holder =
+                        (ChatsAdapter.ViewHolder) mRecyclerView
+                                .findViewHolderForAdapterPosition(position);
 
-                    ChatsAdapter.ViewHolder holder =
-                            (ChatsAdapter.ViewHolder) mRecyclerView
-                                    .findViewHolderForAdapterPosition(position);
+                if (holder != null){
 
-                    if (holder != null){
+                    Pair<View, String> p1 = Pair.create(
+                            (View)holder.ivThing1,
+                            getString(R.string.transitions_id_thing1Img));
+                    Pair<View, String> p2 = Pair.create(
+                            (View)holder.ivThing2,
+                            getString(R.string.transitions_id_thing2Img));
+                    Pair<View, String> p3 = Pair.create(
+                            (View)holder.ivUserPic,
+                            getString(R.string.transitions_id_userPic));
+                    ActivityOptionsCompat options =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3);
 
-                        Pair<View, String> p1 = Pair.create(
-                                (View)holder.ivThing1,
-                                getString(R.string.transitions_id_thing1Img));
-                        Pair<View, String> p2 = Pair.create(
-                                (View)holder.ivThing2,
-                                getString(R.string.transitions_id_thing2Img));
-                        Pair<View, String> p3 = Pair.create(
-                                (View)holder.ivUserPic,
-                                getString(R.string.transitions_id_userPic));
-                        ActivityOptionsCompat options =
-                                ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3);
+                    startActivity(intent, options.toBundle());
 
-                        startActivity(intent, options.toBundle());
+                }
 
-                    }
+                break;
 
-                    break;
-
-                case Constants.ADAPTER_TYPE_MY_THINGS:
+            case Constants.ADAPTER_TYPE_MY_THINGS:
 
 
-                    MyThingsAdapter.ExchangeViewHolder exchangeViewHolder =
-                            (MyThingsAdapter.ExchangeViewHolder) mRecyclerView
-                                    .findViewHolderForAdapterPosition(position);
+                MyThingsAdapter.ExchangeViewHolder exchangeViewHolder =
+                        (MyThingsAdapter.ExchangeViewHolder) mRecyclerView
+                                .findViewHolderForAdapterPosition(position);
 
-                    if (exchangeViewHolder != null){
+                if (exchangeViewHolder != null){
 
-                        Pair<View, String> p1 = Pair.create(
-                                (View)exchangeViewHolder.ivThing1,
-                                getString(R.string.transitions_id_thing1Img));
-                        Pair<View, String> p2 = Pair.create(
-                                (View)exchangeViewHolder.ivThing2,
-                                getString(R.string.transitions_id_thing2Img));
-                        ActivityOptionsCompat options =
-                                ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2);
+                    Pair<View, String> p1 = Pair.create(
+                            (View)exchangeViewHolder.ivThing1,
+                            getString(R.string.transitions_id_thing1Img));
+                    Pair<View, String> p2 = Pair.create(
+                            (View)exchangeViewHolder.ivThing2,
+                            getString(R.string.transitions_id_thing2Img));
+                    ActivityOptionsCompat options =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2);
 
-                        startActivity(intent, options.toBundle());
-                    }
+                    startActivity(intent, options.toBundle());
+                }
 
-                    break;
-            }
-        } else {
-
-            startActivity(intent);
-
+                break;
         }
 
     }
 
+    @Override
+    public void showUserInfoDialog(String name, String imgUrl) {
+        Log.d("@@@", "MainActivity.showUserInfoDialog");
+
+        userInfoDialog = UserInfoDialog.newInstance(name, imgUrl);
+        userInfoDialog.show(getSupportFragmentManager(), "user_info_dialog");
+
+
+    }
 
 //    ====================ANIMATIONS========================
 
@@ -623,79 +601,59 @@ public class MainActivity
         }
     }
 
+    @Override
+    public void animateCameraIn() {
+
+        Utils.lockScreenOrientation(this);
+
+        new Handler(Looper.getMainLooper()).post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+
+                        Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_left);
+                        animation.setStartOffset(500);
+                        animation.setDuration(600);
+
+                        animation.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+
+                                btnCamera.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_bottom));
+                                btnCamera.setVisibility(View.VISIBLE);
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+
+
+
+                        mTextureView.startAnimation(animation);
+                        mTextureView.setVisibility(View.VISIBLE);
+
+                    }
+                }
+        );
+
+    }
 
 
 //    ====================ACTIONS========================
 
 
     @Override
-    public void showCamera() {
-
-        try {
-
-            CameraManager mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-
-            mCamManager = new CamManager(mCameraManager);
-
-
-            String[] cameraList = mCameraManager != null ? mCameraManager.getCameraIdList() : null;
-
-            mCameraHelper = new CameraHelper(mCameraManager, cameraList[0]);
-
-            mCameraHelper.openCamera();
-
-            Utils.lockScreenOrientation(this);
-
-            mTextureView.setVisibility(View.VISIBLE);
-
-            mCameraHelper.setTextureView(mTextureView);
-
-            Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
-            animation.setStartOffset(500);
-            animation.setDuration(600);
-
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                    btnCamera.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_bottom));
-                    btnCamera.setVisibility(View.VISIBLE);
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-
-            mTextureView.startAnimation(animation);
-
-
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-
-
-    @Override
     public void hideCamera(Animation.AnimationListener animationListener) {
 
-        if (mCameraHelper != null){
-
-            mCameraHelper.closeCamera();
-
-            mCameraHelper = null;
-
-        }
 
         if (btnCamera.getVisibility() != View.GONE){
 
@@ -726,15 +684,6 @@ public class MainActivity
     }
 
 
-    @Override
-    public void showUserInfoDialog(String name, String imgUrl) {
-        Log.d("@@@", "MainActivity.showUserInfoDialog");
-
-        userInfoDialog = UserInfoDialog.newInstance(name, imgUrl);
-        userInfoDialog.show(getSupportFragmentManager(), "user_info_dialog");
-
-
-    }
 
     @Override
     public void vibrate(int duration) {

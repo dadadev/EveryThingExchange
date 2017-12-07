@@ -15,7 +15,7 @@ import com.dadabit.everythingexchange.model.vo.MainActivityState;
 import com.dadabit.everythingexchange.model.vo.MyThingsAdapterItem;
 import com.dadabit.everythingexchange.model.vo.ThingCategory;
 import com.dadabit.everythingexchange.model.vo.User;
-import com.dadabit.everythingexchange.utils.MyThingsManager;
+import com.dadabit.everythingexchange.utils.CameraHelper;
 
 import java.util.List;
 
@@ -83,6 +83,10 @@ public class MainActivityViewModel extends ViewModel{
         return mRepository.getMyThingsManager().getMyThingAdapterItems();
     }
 
+    public CameraHelper getCameraHelper(){
+        return mRepository.getCameraHelper();
+    }
+
     //    ==============SETTERS===================
 
 
@@ -146,5 +150,24 @@ public class MainActivityViewModel extends ViewModel{
 
         //TODO
 
+    }
+
+
+    public void closeCamera(){
+        mRepository.removeCameraHelper();
+    }
+
+    public void initNewThing(Bitmap bitmap) {
+
+        mRepository.getMyThingsManager().initNewThing(bitmap);
+
+    }
+
+    public void addNewThingImageUrl(String url) {
+        mRepository.getMyThingsManager().setNewThingImageUrl(url);
+    }
+
+    public void saveNewThing(byte[] image){
+        mRepository.saveNewThing(image);
     }
 }

@@ -3,6 +3,9 @@ package com.dadabit.everythingexchange.ui.presenter.main;
 
 import android.arch.lifecycle.Observer;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +25,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dadabit.everythingexchange.R;
+import com.dadabit.everythingexchange.model.firebase.ImageUploader;
 import com.dadabit.everythingexchange.model.vo.ChatItem;
 import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
 import com.dadabit.everythingexchange.model.vo.MyThingsAdapterItem;
@@ -34,6 +38,7 @@ import com.dadabit.everythingexchange.ui.adapter.MyThingsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.BasePresenter;
 import com.dadabit.everythingexchange.ui.viewmodel.MainActivityViewModel;
 import com.dadabit.everythingexchange.utils.BottomNavigationViewBehavior;
+import com.dadabit.everythingexchange.utils.CameraHelper;
 import com.dadabit.everythingexchange.utils.ChatItemsManager;
 import com.dadabit.everythingexchange.utils.Constants;
 
@@ -128,8 +133,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                 getView().vibrate(30);
 
-//                getView().startAddThingActivity();
-
                 showCamera();
 
                 break;
@@ -178,12 +181,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     }
 
     private void showCamera() {
-
-        getView().showCamera();
+        Log.d("@@@", "MainActivityPresenter.showCamera");
 
         mViewModel.getState().setAdapterType(Constants.ADAPTER_TYPE_CAMERA);
-
-        getView().vibrate(20);
 
         getView().getAppBarLayout().setExpanded(false,true);
 
@@ -193,7 +193,7 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
         getView().animateRecyclerOut(
                 Constants.DIRECTION_RIGHT,
-                1000,
+                350,
                 new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -203,7 +203,6 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     @Override
                     public void onAnimationEnd(Animation animation) {
 
-
                         navigationViewBehavior.slideDown();
 
 
@@ -212,6 +211,76 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
                     @Override
                     public void onAnimationRepeat(Animation animation) {
 
+                    }
+                });
+
+        mViewModel.getCameraHelper().setCallback(
+                new CameraHelper.CamCallback() {
+                    @Override
+                    public void onCameraReady() {
+                        Log.d("@@@", "MainActivityPresenter.CameraHelper.onCameraReady");
+
+                        mViewModel.getCameraHelper()
+                                .setCaptureSetting(
+                                        CaptureRequest.CONTROL_MODE,
+                                        CameraMetadata.CONTROL_MODE_AUTO);
+
+                        mViewModel.getCameraHelper().startPreview();
+
+                        getView().animateCameraIn();
+
+                    }
+
+                    @Override
+                    public void onPicture(byte[] image) {
+                        Log.d("@@@", "MainActivityPresenter.CameraHelper.onPicture");
+
+
+//                        getUiHandler().post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                getView().getProgressBar().setVisibility(View.VISIBLE);
+//
+//                                getView().startAddThingActivity();
+//                            }
+//                        });
+
+                        mViewModel.saveNewThing(image);
+
+
+                        getView().startAddThingActivity();
+
+//                        saveNewImage(image);
+
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        Log.e("@@@", "MainActivityPresenter.CameraHelper.onError");
+
+                    }
+
+                    @Override
+                    public void onCameraDisconnected() {
+                        Log.d("@@@", "MainActivityPresenter.CameraHelper.onCameraDisconnected");
+
+                    }
+                }
+        );
+
+        mViewModel.getCameraHelper().setTextureView(getView().getTextureView());
+
+        getView().getTextureView().setVisibility(View.VISIBLE);
+
+        getView().getImageCaptureBtn().setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d("@@@", "MainActivityPresenter.ImageCaptureBtn.OnClick");
+
+                        getView().getProgressBar().setVisibility(View.VISIBLE);
+
+                        mViewModel.getCameraHelper().takePic();
                     }
                 });
 
@@ -1668,6 +1737,8 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
 
                         getView().getTextureView().setVisibility(View.GONE);
 
+                        mViewModel.closeCamera();
+
                         switch (mViewModel.getState().getPreviousAdapterType()){
 
                             case Constants.ADAPTER_TYPE_CATEGORIES:
@@ -1754,6 +1825,9 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
     public void detachView() {
         Log.d("@@@", "MainActivityPresenter.detachView");
         super.detachView();
+
+        mViewModel.closeCamera();
+
 //        if (mRepository.getMyThingsManager()!= null){
 //
 //            mRepository.getMyThingsManager().detachMyThingsChangeObserver();
@@ -1804,4 +1878,39 @@ public class MainActivityPresenter extends BasePresenter<MainActivityView>
         });
 
     }
+
+
+    public void saveNewImage(byte[] image) {
+        Log.d("@@@", "MainActivityPresenter.saveNewImage");
+
+        mViewModel.initNewThing(BitmapFactory.decodeByteArray(image, 0, image.length));
+
+        new ImageUploader(
+                image,
+                mViewModel.getUser().getUid(),
+                System.currentTimeMillis(),
+                new ImageUploader.OnFinishListener() {
+                    @Override
+                    public void onFinish(String url) {
+                        Log.d("@@@", "MainActivityPresenter.saveNewImage.onFinish");
+
+                        if (url != null){
+
+                            mViewModel.addNewThingImageUrl(url);
+
+
+                            getView().getProgressBar().setVisibility(View.GONE);
+
+                        } else {
+                            Log.e("@@@", "MainActivityPresenter.saveNewImage.uploadingERROR !!!");
+
+                        }
+
+                    }
+                })
+                .send();
+
+    }
+
+
 }

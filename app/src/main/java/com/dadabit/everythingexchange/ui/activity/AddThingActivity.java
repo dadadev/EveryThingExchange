@@ -3,12 +3,10 @@ package com.dadabit.everythingexchange.ui.activity;
 
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -26,22 +24,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.dadabit.everythingexchange.App;
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.ui.presenter.addThing.AddThingActivityPresenter;
 import com.dadabit.everythingexchange.ui.presenter.addThing.AddThingActivityView;
-import com.dadabit.everythingexchange.utils.Utils;
+import com.dadabit.everythingexchange.ui.viewmodel.AddThingActivityViewModel;
+import com.dadabit.everythingexchange.ui.viewmodel.ViewModelFactory;
 
-import java.io.IOException;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class AddThingActivity extends AppCompatActivity implements AddThingActivityView{
-
-    public static final int REQUEST_IMAGE_CAPTURE = 1488;
-    public static final String ARGUMENT_IMAGE = "argument_image";
-    public static final String ARGUMENT_THING_ID = "argument_thing_id";
-
 
     @BindView(R.id.addNew_toolbar) Toolbar mToolbar;
     @BindView(R.id.addNew_card) CardView mCardView;
@@ -58,15 +53,16 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
 
     public static AddThingActivityPresenter mPresenter;
 
-    private Bitmap image;
+    @Inject ViewModelFactory factory;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        Log.d("@@@", "AddThingActivity.onCreate");
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_add_new_thing);
 
-        Log.d("@@@", "AddThingActivity.onCreate");
+        App.getComponent().inject(this);
 
         ButterKnife.bind(this);
 
@@ -83,90 +79,14 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
         });
         mToolbar.setTitle(R.string.title_addNewThing);
 
-        if (savedInstanceState == null){
-            Log.d("@@@", "AddThingActivity.savedInstanceState == null");
-
-            int thingId = getIntent().getIntExtra(ARGUMENT_THING_ID, -1);
-
-            if (thingId != -1){
-
-                mPresenter.changeThing(thingId);
-                mToolbar.setTitle(R.string.title_change_thing);
-
-            } else {
-
-                captureImage();
-            }
-
-        } else {
-            Log.d("@@@", "AddThingActivity.savedInstanceState != null");
-
-            image = savedInstanceState.getParcelable(ARGUMENT_IMAGE);
-
-            if (image != null){
-                Log.d("@@@", "AddThingActivity.image != null");
-
-                mPresenter.setImageCapture(image);
-            }
-        }
-
-
-
-
     }
 
 
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onResume() {
+        Log.d("@@@", "AddThingActivity.onResume");
+        super.onResume();
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE
-                && resultCode == Activity.RESULT_OK){
-            Log.d("@@@", "AddThingActivity.onActivityResult.resultCode = OK");
-
-            try {
-
-                if (data.getData() == null){
-
-                    Log.d("@@@", "AddThingActivity.onActivityResult. NO URI");
-
-                } else {
-
-                    image = Utils.getImageBitmap(
-                            getActivityContext(),
-                            data.getData());
-                }
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                onBackPressed();
-            }
-
-            if (image != null
-                    && mPresenter != null){
-
-                mPresenter.setImageCapture(image);
-
-            }
-
-        } else if (resultCode == 0){
-            Log.d("@@@", "AddThingActivity.onActivityResult.resultCode = 0 onBackPressed()");
-            onBackPressed();
-        }
-        if (requestCode == Activity.RESULT_CANCELED){
-
-            Log.d("@@@", "AddThingActivity.onActivityResult.resultCode = CANCELED");
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        Log.d("@@@", "AddThingActivity.onSaveInstanceState");
-        outState.putParcelable(ARGUMENT_IMAGE, image);
-
-        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     @Override
@@ -202,9 +122,24 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
     }
 
     @Override
+    public void animShowCategories() {
+
+        Animation animation = AnimationUtils
+                .loadAnimation(
+                        this,
+                        R.anim.slide_in_right);
+        animation.setDuration(600);
+
+        categoriesRecyclerView.startAnimation(animation);
+        categoriesRecyclerView.setVisibility(View.VISIBLE);
+//        btnSave.hide();
+
+    }
+
+    @Override
     public void animateCategoryChoose() {
 
-        btnSave.show();
+//        btnSave.show();
 
         Animation animation = AnimationUtils
                 .loadAnimation(
@@ -259,14 +194,6 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
         onBackPressed();
     }
 
-    @Override
-    public void captureImage() {
-        Log.d("@@@", "AddThingActivity.startActivityForResult");
-        startActivityForResult(
-                new Intent(
-                        MediaStore.ACTION_IMAGE_CAPTURE),
-                REQUEST_IMAGE_CAPTURE);
-    }
 
     @Override
     public void showKeyboard() {
@@ -327,6 +254,13 @@ public class AddThingActivity extends AppCompatActivity implements AddThingActiv
     @Override
     public EditText getHashTagEditText() {
         return etHashTag;
+    }
+
+    @Override
+    public AddThingActivityViewModel getViewModel() {
+        return ViewModelProviders
+                .of(this, factory)
+                .get(AddThingActivityViewModel.class);
     }
 
     @Override

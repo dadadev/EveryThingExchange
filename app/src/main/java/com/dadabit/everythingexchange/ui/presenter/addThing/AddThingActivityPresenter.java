@@ -1,9 +1,11 @@
 package com.dadabit.everythingexchange.ui.presenter.addThing;
 
 
+import android.arch.lifecycle.Observer;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,44 +19,46 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dadabit.everythingexchange.R;
 import com.dadabit.everythingexchange.model.AddThingActivityRepo;
+import com.dadabit.everythingexchange.model.vo.FireBaseThingItem;
 import com.dadabit.everythingexchange.ui.adapter.CategoryIconsAdapter;
 import com.dadabit.everythingexchange.ui.adapter.HashTagsAdapter;
 import com.dadabit.everythingexchange.ui.presenter.BasePresenter;
+import com.dadabit.everythingexchange.ui.viewmodel.AddThingActivityViewModel;
 import com.dadabit.everythingexchange.utils.Dialogs;
 
 public class AddThingActivityPresenter extends BasePresenter<AddThingActivityView>
-        implements View.OnClickListener, TextView.OnEditorActionListener, TextWatcher{
+        implements View.OnClickListener, TextView.OnEditorActionListener{
 
+
+    private AddThingActivityViewModel mViewModel;
 
     private CategoryIconsAdapter categoriesAdapter;
     private HashTagsAdapter hashTagsAdapter;
 
-    private AddThingActivityRepo mRepository;
+
 
     public boolean blockExit = false;
 
     private boolean etHashTagShown = false;
     private boolean btnHashTagShown = false;
 
-    public AddThingActivityPresenter() {
-        Log.d("@@@", "AddThingActivityPresenter.create");
-        mRepository = new AddThingActivityRepo();
-    }
+//    public AddThingActivityPresenter() {
+//        Log.d("@@@", "AddThingActivityPresenter.create");
+//        mRepository = new AddThingActivityRepo();
+//    }
 
     @Override
     public void attachView(AddThingActivityView addThingActivityView) {
         super.attachView(addThingActivityView);
         Log.d("@@@", "AddThingActivityPresenter.attachView");
 
+        mViewModel = getView().getViewModel();
 
-        if (mRepository.getImgBitmap() != null){
-
-            showContent();
-
-        }
-
+        showContent();
 
         setClickListeners();
 
@@ -64,13 +68,94 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
     private void showContent(){
         Log.d("@@@", "AddThingActivityPresenter.showContent");
 
-        getView().getImageView()
-                .setImageBitmap(mRepository.getImgBitmap());
+        if (mViewModel.getNewFireBaseThing() == null){
+            loadThing();
+        }
+
+        mViewModel.getNewFireBaseThing()
+                .observe(
+                        getView().getLifecycleOwner(),
+                        new Observer<FireBaseThingItem>() {
+                            @Override
+                            public void onChanged(@Nullable FireBaseThingItem fireBaseThingItem) {
+                                Log.d("@@@", "AddThingActivityPresenter.getNewFireBaseThing.onChanged");
+
+                                if (mViewModel.isReadyToSave()){
+                                    Log.d("@@@", "AddThingActivityPresenter.mViewModel.isReadyToSave");
+                                    getView().getBtnSave().show();
+                                    showBtnHashTag();
+
+                                }
 
 
-        setHandler(new Handler());
 
-        getHandler().postDelayed(new Runnable() {
+                                if (mViewModel.isThingSaved()){
+                                    Log.d("@@@", "AddThingActivityPresenter.mViewModel.isThingSaved");
+                                    getView().getProgressBar().setVisibility(View.GONE);
+
+                                    getView().goBack();
+                                }
+                            }
+                        }
+                );
+
+
+        mViewModel.getImage().observe(
+                getView().getLifecycleOwner(),
+                new Observer<Bitmap>() {
+                    @Override
+                    public void onChanged(@Nullable Bitmap bitmap) {
+                        Log.d("@@@", "NewThingActivityPresenter.ShowImageBitmap");
+
+                        if (bitmap != null){
+
+                            getView().getImageView().setImageBitmap(bitmap);
+                        }
+
+
+                    }
+                }
+        );
+
+        mViewModel.getImageUrl().observe(
+                getView().getLifecycleOwner(),
+                new Observer<String>() {
+                    @Override
+                    public void onChanged(@Nullable String url) {
+                        Log.d("@@@", "NewThingActivityPresenter.showContent.OnImageUrlLoaded");
+
+
+                        mViewModel.setImageUrl(url);
+
+                    }
+                }
+        );
+
+
+        mViewModel.getChosenCategory().observe(
+                getView().getLifecycleOwner(),
+                new Observer<Integer>() {
+                    @Override
+                    public void onChanged(@Nullable Integer position) {
+                        if (position != null){
+                            getView().getBtnCategory()
+                                    .setText(
+                                            mViewModel
+                                                    .getCategories()
+                                                    .get(position)
+                                                    .getName());
+
+
+                            getView().animateCategoryChoose();
+
+                            showBtnHashTag();
+                        }
+                    }
+                });
+
+
+
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (isViewAttached()){
@@ -83,17 +168,25 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
             }
         }, 300);
 
-    }
 
 
-    public void setImageCapture(Bitmap image){
-        Log.d("@@@", "AddThingActivityPresenter.setImageCapture");
-
-        mRepository.setImgBitmap(image);
-
-        showContent();
 
     }
+
+    private void loadThing() {
+
+        mViewModel.createNewThing();
+        setHandler(new Handler(getLooper()));
+        getHandler().post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mViewModel.initNewFirebaseThing();
+                    }
+                }
+        );
+    }
+
 
     private void setClickListeners() {
         getView().getBtnCategory().setOnClickListener(this);
@@ -101,8 +194,48 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
         getView().getImageView().setOnClickListener(this);
         getView().getBtnHashTag().setOnClickListener(this);
         getView().getHashTagEditText().setOnEditorActionListener(this);
-        getView().getNameEditText().addTextChangedListener(this);
-        getView().getDescriptionEditText().addTextChangedListener(this);
+        getView().getNameEditText().addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!TextUtils.isEmpty(getView().getNameEditText().getText())){
+                            mViewModel.setName(getView().getNameEditText().getText().toString());
+                        }
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                }
+        );
+        getView().getDescriptionEditText().addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!TextUtils.isEmpty(getView().getDescriptionEditText().getText())){
+                            mViewModel.setDescription(getView().getDescriptionEditText().getText().toString());
+                        }
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                }
+        );
         getView().getHashTagEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -123,6 +256,8 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
             }
         });
+
+
     }
 
     private CategoryIconsAdapter.CategoryIconsClickCallback categoryClickCallback = new CategoryIconsAdapter.CategoryIconsClickCallback() {
@@ -131,13 +266,8 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
             blockExit = false;
 
-            mRepository.setChosenCategory(position);
+            mViewModel.setChosenCategory(position);
 
-            getView().getBtnCategory().setText(mRepository.getCategories().get(position).getName());
-
-            getView().animateCategoryChoose();
-
-            showBtnHashTag();
 
         }
     };
@@ -146,7 +276,7 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
         @Override
         public void onClick(int position) {
 
-            mRepository.getHashTagsList().remove(position);
+            mViewModel.getHashTagsList().remove(position);
             hashTagsAdapter.notifyItemRemoved(position);
 
         }
@@ -159,13 +289,11 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
             case R.id.addNew_btnCategory:
                 Log.d("@@@", "AddThingPresenter.btnCategory.onClick");
 
-                if (mRepository.getCategories() != null){
 
-                    showCategories();
+                showCategories();
 
-                    blockExit = true;
+                blockExit = true;
 
-                }
                 break;
 
             case R.id.addNew_btnSave:
@@ -177,29 +305,16 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
                     getView().animateSaveData();
 
-                    mRepository.saveThing(new AddThingActivityRepo.SaveThingCallback() {
-                        @Override
-                        public void onSuccess(boolean isSaved) {
+                    getHandler().post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
 
-                            if (isSaved && isViewAttached()){
-                                Log.d("@@@", "AddThingPresenter.SaveThing.onSuccess");
-
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        getView().getProgressBar().setVisibility(View.GONE);
-
-                                        getView().goBack();
-
-                                    }
-                                });
-
-                            } else {
-                                Log.d("@@@", "AddThingPresenter.SaveThing.onError (!)");
+                                    mViewModel.saveThing();
+                                }
                             }
-                        }
-                    });
+                    );
+
                 }
                 break;
 
@@ -207,7 +322,7 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
                 Log.d("@@@", "AddThingPresenter.ImageView.onClick");
                 Dialogs.getImageDialog(
                         getView().getActivityContext(),
-                        mRepository.getImgBitmap())
+                        mViewModel.getImage().getValue())
                         .show();
                 break;
 
@@ -256,7 +371,7 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
                     hashTag = "#"+hashTag;
 
-                    mRepository.setHashTag(hashTag);
+                    mViewModel.setHashTag(hashTag);
 
                     if (hashTagsAdapter == null){
 
@@ -267,7 +382,7 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
                         getView().getHashTagRecyclerView().setAdapter(
                                 hashTagsAdapter = new HashTagsAdapter(
-                                        mRepository.getHashTagsList(),
+                                        mViewModel.getHashTagsList(),
                                         hashTagClickCallback));
 
                     } else {
@@ -293,7 +408,7 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
             return false;
 
         } else {
-            mRepository.setName(getView().getNameEditText().getText().toString());
+            mViewModel.setName(getView().getNameEditText().getText().toString());
         }
 
         if (TextUtils.isEmpty(getView().getDescriptionEditText().getText())){
@@ -306,10 +421,10 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
             return false;
 
         } else {
-            mRepository.setDescription(getView().getDescriptionEditText().getText().toString());
+            mViewModel.setDescription(getView().getDescriptionEditText().getText().toString());
         }
 
-        if (mRepository.getChosenCategory() == -1){
+        if (!mViewModel.isCategoryChosen()){
             Log.d("@@@", "AddThingPresenter.onSave.isFullData = false (no category)");
 
             Toast.makeText(getView().getActivityContext(), "Please choose category", Toast.LENGTH_SHORT).show();
@@ -325,29 +440,24 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
     }
 
     private void showCategories() {
-        Log.d("@@@", "AddThingPresenter.showCategories: "+mRepository.getCategories().size());
+        Log.d("@@@", "AddThingPresenter.showCategories");
 
         if (categoriesAdapter == null){
 
             getView().getCategoriesRecyclerView().setLayoutManager(
-                    new LinearLayoutManager(getView().getActivityContext(), LinearLayoutManager.HORIZONTAL,false));
+                    new LinearLayoutManager(
+                            getView().getActivityContext(),
+                            LinearLayoutManager.HORIZONTAL,
+                            false));
 
             getView().getCategoriesRecyclerView().setAdapter(
                     categoriesAdapter = new CategoryIconsAdapter(
-                            mRepository.getCategories(),
+                            mViewModel.getCategories(),
                             categoryClickCallback));
 
         }
 
-        Animation animation = AnimationUtils
-                .loadAnimation(
-                        getView().getActivityContext(),
-                        R.anim.slide_in_right);
-        animation.setDuration(600);
-
-        getView().getCategoriesRecyclerView().startAnimation(animation);
-        getView().getCategoriesRecyclerView().setVisibility(View.VISIBLE);
-        getView().getBtnSave().hide();
+        getView().animShowCategories();
 
 
     }
@@ -374,33 +484,25 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
                 break;
 
+            case R.id.addNew_etName:
+
+
+
+                break;
+
+
+
         }
 
         return false;
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        showBtnHashTag();
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-    }
 
     private void showBtnHashTag(){
         if (!btnHashTagShown
                 && !TextUtils.isEmpty(getView().getNameEditText().getText())
                 && !TextUtils.isEmpty(getView().getDescriptionEditText().getText())
-                && mRepository.getChosenCategory() != -1
-                ){
+                && mViewModel.isCategoryChosen()){
 
             btnHashTagShown = true;
             getView().getBtnHashTag().setVisibility(View.VISIBLE);
@@ -409,23 +511,23 @@ public class AddThingActivityPresenter extends BasePresenter<AddThingActivityVie
 
     public void changeThing(int thingId) {
 
-        mRepository.setThingToChange(thingId);
-
-        getView().getImageView()
-                .setImageBitmap(mRepository.getThingToChange().getImgBitmap());
-
-        getView().getNameEditText()
-                .setText(mRepository.getThingToChange().getName());
-
-        getView().getDescriptionEditText()
-                .setText(mRepository.getThingToChange().getDescription());
-
-        getView().getBtnCategory()
-                .setText(mRepository.getCategories()
-                        .get(mRepository.getThingToChange().getCategory())
-                        .getName());
-
-        setHashTag(mRepository.getThingToChange().getHashTags());
+//        mRepository.setThingToChange(thingId);
+//
+//        getView().getImageView()
+//                .setImageBitmap(mRepository.getThingToChange().getImgBitmap());
+//
+//        getView().getNameEditText()
+//                .setText(mRepository.getThingToChange().getName());
+//
+//        getView().getDescriptionEditText()
+//                .setText(mRepository.getThingToChange().getDescription());
+//
+//        getView().getBtnCategory()
+//                .setText(mRepository.getCategories()
+//                        .get(mRepository.getThingToChange().getCategory())
+//                        .getName());
+//
+//        setHashTag(mRepository.getThingToChange().getHashTags());
 
     }
 }
